@@ -20,6 +20,8 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,21 +44,27 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.ArrayMap;
 import com.google.api.services.vision.v1.Vision;
 import com.google.api.services.vision.v1.VisionRequest;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
 import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.AnnotateImageResponse;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.ImageProperties;
 
 
-
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mImageDetails;
     private ImageView mMainImage;
+    private ImageView fotoImageView;
+    private Bitmap b;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        Log.d(TAG, Instance.getInstance().getFullName());
+        Log.d(TAG, Instance.getInstance().getUrlPhoto());
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -106,9 +122,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
         mImageDetails = (TextView) findViewById(R.id.image_details);
         mMainImage = (ImageView) findViewById(R.id.main_image);
+        fotoImageView = (ImageView) findViewById(R.id.imageView3);
+
+
+        new AsyncTask<Void,String,Bitmap>(){
+
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                try
+                {
+                    URL url = new URL(Instance.getInstance().getUrlPhoto());
+                    InputStream is = new BufferedInputStream(url.openStream());
+                    b = BitmapFactory.decodeStream(is);
+                } catch(
+                        Exception e)
+
+                {
+                    e.printStackTrace();
+                }
+
+                return b;
+            }
+            protected void onPostExecute(Bitmap result){
+
+                fotoImageView.setImageBitmap(result);
+            }
+
+        }.execute();
     }
+
+
+
+
+
 
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -251,6 +302,16 @@ public class MainActivity extends AppCompatActivity {
                             labelDetection.setType("LABEL_DETECTION");
                             labelDetection.setMaxResults(10);
                             add(labelDetection);
+
+                            Feature webDetection = new Feature();
+                            webDetection.setType("WEB_DETECTION");
+                            webDetection.setMaxResults(10);
+                            add(webDetection);
+
+                            Feature logoDetection = new Feature();
+                            logoDetection.setType("LOGO_DETECTION");
+                            logoDetection.setMaxResults(10);
+                            add(logoDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -302,14 +363,93 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
-        String message = "I found these things:\n\n";
+        String message = "";
+        List<EntityAnnotation> annotations;
+        AnnotateImageResponse annotateImageResponse = response.getResponses().get(0);
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
-        if (labels != null) {
-            for (EntityAnnotation label : labels) {
-                message += String.format(Locale.US, "%.3f: %s", label.getScore(), label.getDescription());
+        message += "\n___\n Web Detection:\n\n";
+        Object webDetection = annotateImageResponse.get("webDetection");
+        if (webDetection != null) {
+            ArrayMap webDetectionAnnotations = (ArrayMap) webDetection;
+
+            Object webEntities = webDetectionAnnotations.get("webEntities");
+            if (webEntities != null) {
+                ArrayList<ArrayMap> webEntitiesList = (ArrayList<ArrayMap>) webEntities;
+
+                for (ArrayMap webEntity :
+                        webEntitiesList) {
+                    message += String.format(Locale.US, "%s - score:%s id:%s", webEntity.get("description"), webEntity.get("score"), webEntity.get("entityId"));
+                    message += "\n";
+                }
+
+            }
+        }
+
+        message += "\n___\n Labels:\n\n";
+        annotations = annotateImageResponse.getLabelAnnotations();
+        if (annotations != null) {
+            for (EntityAnnotation annotation : annotations) {
+                message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
                 message += "\n";
             }
+        } else {
+            message += "nothing";
+        }
+
+        message += "\n___\n Text:\n\n";
+        annotations = annotateImageResponse.getTextAnnotations();
+        if (annotations != null) {
+            for (EntityAnnotation annotation : annotations) {
+                message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        message += "\n___\n Landmarks:\n\n";
+        annotations = annotateImageResponse.getLandmarkAnnotations();
+        if (annotations != null) {
+            for (EntityAnnotation annotation : annotations) {
+                message += String.format(Locale.US, "%.3f: %s - %s", annotation.getScore(), annotation.getDescription(), annotation.getLocations());
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        message += "\n___\n Logos:\n\n";
+        annotations = annotateImageResponse.getLogoAnnotations();
+        if (annotations != null) {
+            for (EntityAnnotation annotation : annotations) {
+                message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        message += "\n___\n Faces:\n\n";
+        List<FaceAnnotation> faceAnnotations = annotateImageResponse.getFaceAnnotations();
+        if (faceAnnotations != null) {
+            for (FaceAnnotation annotation : faceAnnotations) {
+                message += String.format(Locale.US, "position: %s anger:%s joy:%s surprise:%s headwear:%s",
+                        annotation.getBoundingPoly(),
+                        annotation.getAngerLikelihood(),
+                        annotation.getJoyLikelihood(),
+                        annotation.getSurpriseLikelihood(),
+                        annotation.getHeadwearLikelihood());
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        message += "\n___\n Image Properties:\n\n";
+        ImageProperties imagePropertiesAnnotation = annotateImageResponse.getImagePropertiesAnnotation();
+        if (imagePropertiesAnnotation != null) {
+            message += String.format(Locale.US, "%s", imagePropertiesAnnotation.getDominantColors());
+            message += "\n";
         } else {
             message += "nothing";
         }

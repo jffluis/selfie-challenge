@@ -1,16 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        androiddebugkey {
+            keyAlias 'androiddebugkey'
+            keyPassword '123123'
+            storeFile file('/Users/Joel/.android/debug.keystore')
+            storePassword '123123'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
-
     defaultConfig {
-
         applicationId "com.ipleiria.selfiechallenge"
         minSdkVersion 22
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.androiddebugkey
+        versionNameSuffix 'androiddebugkey'
     }
     buildTypes {
         release {
@@ -18,16 +26,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
-
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
-
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.1.1'
     compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.18.0'
+    testCompile 'junit:junit:4.12'
 }
