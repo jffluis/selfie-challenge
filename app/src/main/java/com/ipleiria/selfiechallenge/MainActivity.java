@@ -51,7 +51,8 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
-import com.ipleiria.selfiechallenge.cloudvision.R;
+
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
