@@ -1,14 +1,10 @@
-package com.ipleiria.selfiechallenge;
+package com.ipleiria.selfiechallenge.fragments;
 
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.ipleiria.selfiechallenge.R;
 
 
 /**
@@ -32,7 +27,7 @@ import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragmen
  * Use the {@link ChooseChallengeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChooseChallengeFragment extends Fragment implements PlaceSelectionListener {
+public class ChooseChallengeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String INDEX = "index";
@@ -67,20 +62,18 @@ public class ChooseChallengeFragment extends Fragment implements PlaceSelectionL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getInt(INDEX);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            //mParam1 = getArguments().getInt(INDEX);
+            //mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
 
-
-        SupportPlaceAutocompleteFragment autocompleteFragment;
-        autocompleteFragment = (SupportPlaceAutocompleteFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-        if(autocompleteFragment==null) {
+        SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
+                getActivity().getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        if(autocompleteFragment == null) {
             autocompleteFragment = (SupportPlaceAutocompleteFragment) SupportPlaceAutocompleteFragment.instantiate(getActivity(), "com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment");
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
@@ -98,10 +91,7 @@ public class ChooseChallengeFragment extends Fragment implements PlaceSelectionL
             getChildFragmentManager().beginTransaction().replace(R.id.autocomplete_fragment, autocompleteFragment).commit();
         }
 
-        mPlaceDetailsText = (TextView) view.findViewById(R.id.place_details);
-        mPlaceAttribution = (TextView) view.findViewById(R.id.place_attribution);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_choose_challenge, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -110,17 +100,6 @@ public class ChooseChallengeFragment extends Fragment implements PlaceSelectionL
             mListener.onFragmentInteraction(uri);
         }
     }
-
-    @Override
-    public void onPlaceSelected(Place place) {
-
-    }
-
-    @Override
-    public void onError(Status status) {
-
-    }
-
 
     /**
      * This interface must be implemented by activities that contain this
@@ -136,4 +115,5 @@ public class ChooseChallengeFragment extends Fragment implements PlaceSelectionL
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
 }

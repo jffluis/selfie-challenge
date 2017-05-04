@@ -1,7 +1,5 @@
-package com.ipleiria.selfiechallenge;
+package com.ipleiria.selfiechallenge.fragments;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.ipleiria.selfiechallenge.R;
 
 
 public class StartFragment extends Fragment {
@@ -40,8 +40,8 @@ public class StartFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(INDEX);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            //mParam1 = getArguments().getString(INDEX);
+            //mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 

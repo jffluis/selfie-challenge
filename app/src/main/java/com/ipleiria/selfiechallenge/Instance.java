@@ -4,10 +4,10 @@ package com.ipleiria.selfiechallenge;
  * Created by Joel on 03/05/2017.
  */
 
-class Instance {
+public class Instance {
     private static final Instance ourInstance = new Instance();
 
-    static Instance getInstance() {
+    public static Instance getInstance() {
         return ourInstance;
     }
 

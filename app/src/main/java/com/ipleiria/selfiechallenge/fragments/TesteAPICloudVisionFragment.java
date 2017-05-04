@@ -1,27 +1,9 @@
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.ipleiria.selfiechallenge.fragments;
 
-package com.ipleiria.selfiechallenge;
-
-import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,12 +11,13 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,19 +40,24 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
+import com.ipleiria.selfiechallenge.activity.MainActivity;
+import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
+import com.ipleiria.selfiechallenge.utils.PermissionUtils;
+import com.ipleiria.selfiechallenge.R;
 
-
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class TesteAPICloudVisionFragment extends Fragment {
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "index";
+    private static final String ARG_PARAM2 = "param2";
+
     private static final String CLOUD_VISION_API_KEY = "AIzaSyAJqwtryXbw6JwU97MskQbTTpzx_UiiiTU";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
@@ -85,84 +73,76 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mMainImage;
     private ImageView fotoImageView;
     private Bitmap b;
+    private ProgressDialog progressDialog;
 
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
+    public TesteAPICloudVisionFragment() {
+        // Required empty public constructor
+    }
+
+    // TODO: Rename and change types and number of parameters
+    public static TesteAPICloudVisionFragment newInstance(int index) {
+        TesteAPICloudVisionFragment fragment = new TesteAPICloudVisionFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PARAM1, index);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (getArguments() != null) {
+            //mParam1 = getArguments().getString(ARG_PARAM1);
+            //mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        Log.d(TAG, Instance.getInstance().getFullName());
-        Log.d(TAG, Instance.getInstance().getUrlPhoto());
+        View view = inflater.inflate(R.layout.fragment_teste_apicloud_vision, container, false);
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder
-                        .setMessage(R.string.dialog_select_prompt)
-                        .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startGalleryChooser();
-                            }
-                        })
-                        .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startCamera();
-                            }
-                        });
-                builder.create().show();
-            }
-        });
+        mImageDetails = (TextView) view.findViewById(R.id.image_details);
+        mMainImage = (ImageView) view.findViewById(R.id.main_image);
+        fotoImageView = (ImageView) view.findViewById(R.id.imageView3);
 
 
 
-
-        mImageDetails = (TextView) findViewById(R.id.image_details);
-        mMainImage = (ImageView) findViewById(R.id.main_image);
-        fotoImageView = (ImageView) findViewById(R.id.imageView3);
-
-
-        new AsyncTask<Void,String,Bitmap>(){
-
-            @Override
-            protected Bitmap doInBackground(Void... params) {
-                try
-                {
-                    URL url = new URL(Instance.getInstance().getUrlPhoto());
-                    InputStream is = new BufferedInputStream(url.openStream());
-                    b = BitmapFactory.decodeStream(is);
-                } catch(
-                        Exception e)
-
-                {
-                    e.printStackTrace();
+            FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder
+                            .setMessage(R.string.dialog_select_prompt)
+                            .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startGalleryChooser();
+                                }
+                            })
+                            .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startCamera();
+                                }
+                            });
+                    builder.create().show();
                 }
+            });
 
-                return b;
-            }
-            protected void onPostExecute(Bitmap result){
-
-                fotoImageView.setImageBitmap(result);
-            }
-
-        }.execute();
+        return view;
     }
 
 
 
 
-
-
     public void startGalleryChooser() {
-        if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (PermissionUtils.requestPermission(getActivity(), GALLERY_PERMISSIONS_REQUEST, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -173,12 +153,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void startCamera() {
         if (PermissionUtils.requestPermission(
-                this,
+                getActivity(),
                 CAMERA_PERMISSIONS_REQUEST,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA)) {
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.CAMERA)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
+            Uri photoUri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", getCameraFile());
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivityForResult(intent, CAMERA_IMAGE_REQUEST);
@@ -186,18 +166,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public File getCameraFile() {
-        File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File dir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return new File(dir, FILE_NAME);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+        if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null) {
             uploadImage(data.getData());
-        } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
-            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
+        } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK) {
+            Uri photoUri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", getCameraFile());
             uploadImage(photoUri);
         }
     }
@@ -226,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 // scale the image to save on bandwidth
                 Bitmap bitmap =
                         scaleBitmapDown(
-                                MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
+                                MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri),
                                 1200);
 
                 callCloudVision(bitmap);
@@ -234,17 +214,21 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
-                Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.image_picker_error, Toast.LENGTH_LONG).show();
             }
         } else {
             Log.d(TAG, "Image picker gave us a null image.");
-            Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.image_picker_error, Toast.LENGTH_LONG).show();
         }
     }
 
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
-        mImageDetails.setText(R.string.loading_message);
+
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Uploading Image..");
+        progressDialog.show();
+
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
@@ -265,10 +249,10 @@ public class MainActivity extends AppCompatActivity {
                                         throws IOException {
                                     super.initializeVisionRequest(visionRequest);
 
-                                    String packageName = getPackageName();
+                                    String packageName = getActivity().getPackageName();
                                     visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
 
-                                    String sig = PackageManagerUtils.getSignature(getPackageManager(), packageName);
+                                    String sig = PackageManagerUtils.getSignature(getActivity().getPackageManager(), packageName);
 
                                     visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
                                 }
@@ -325,6 +309,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
+
+                    progressDialog.dismiss();
                     return convertResponseToString(response);
 
                 } catch (GoogleJsonResponseException e) {
@@ -453,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             message += "nothing";
         }
+
 
         return message;
     }

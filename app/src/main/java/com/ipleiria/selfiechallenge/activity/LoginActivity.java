@@ -1,4 +1,4 @@
-package com.ipleiria.selfiechallenge;
+package com.ipleiria.selfiechallenge.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -20,6 +20,8 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.ipleiria.selfiechallenge.Instance;
+import com.ipleiria.selfiechallenge.R;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -141,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void nextActivity(Profile profile){
         if(profile != null){
-            Intent main = new Intent(LoginActivity.this, MainActivity_Drawer.class);
+            Intent main = new Intent(LoginActivity.this, MainActivity.class);
             Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
             Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
             startActivity(main);

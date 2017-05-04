@@ -1,4 +1,4 @@
-package com.ipleiria.selfiechallenge;
+package com.ipleiria.selfiechallenge.utils;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ipleiria.selfiechallenge;
+package com.ipleiria.selfiechallenge.utils;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
