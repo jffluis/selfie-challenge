@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,12 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.adapter.RVAdapter;
+import com.ipleiria.selfiechallenge.model.POI;
+
+import java.util.ArrayList;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 /**
@@ -33,6 +42,7 @@ public class ChooseChallengeFragment extends Fragment {
     private static final String INDEX = "index";
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "DEBUG: ";
+    private RVAdapter rvAdapter;
 
     private TextView mPlaceDetailsText;
     private TextView mPlaceAttribution;
@@ -71,6 +81,26 @@ public class ChooseChallengeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+
+        View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
+        ArrayList<POI> lista = new ArrayList<>();
+
+        lista.add(new POI("Nome1", "Nome1"));
+        lista.add(new POI("Nome2", "Nome2"));
+        lista.add(new POI("Nome3", "Nome3"));
+        lista.add(new POI("Nome4", "Nome4"));
+
+
+        rvAdapter = new RVAdapter(lista);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(rvAdapter);
+
         SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
                 getActivity().getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
         if(autocompleteFragment == null) {
@@ -91,7 +121,7 @@ public class ChooseChallengeFragment extends Fragment {
             getChildFragmentManager().beginTransaction().replace(R.id.autocomplete_fragment, autocompleteFragment).commit();
         }
 
-        return inflater.inflate(R.layout.fragment_choose_challenge, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
