@@ -41,6 +41,7 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
+import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
 import com.ipleiria.selfiechallenge.utils.PermissionUtils;
 import com.ipleiria.selfiechallenge.R;
@@ -174,10 +175,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             fragment = TesteAPICloudVisionFragment.newInstance(1);
         } else if (id == R.id.nav_slideshow) {
+            fragment = LeaderboardFragment.newInstance(2);
 
-        } else if (id == R.id.nav_manage) {
+        } /*else if (id == R.id.nav_manage) {
 
-        }
+        }*/
 
         getSupportFragmentManager().beginTransaction()
                     .replace(R.id.contentContainer, fragment).commit();

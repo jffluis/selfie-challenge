@@ -4,10 +4,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ipleiria.selfiechallenge.R;
-import com.ipleiria.selfiechallenge.model.POI;
+import com.ipleiria.selfiechallenge.model.User;
 
 import java.util.List;
 
@@ -15,29 +16,31 @@ import java.util.List;
  * Created by Joel on 04/05/2017.
  */
 
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
+public class RVUserAdapter extends RecyclerView.Adapter<RVUserAdapter.ViewHolder> {
 
-    private List<POI> POIList;
+    private List<User> userList;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView address, name;
+        TextView name, points;
+        ImageView photo;
 
         ViewHolder(View view) {
             super(view);
-            address = (TextView) view.findViewById(R.id.address);
             name = (TextView) view.findViewById(R.id.name);
+            points = (TextView) view.findViewById(R.id.points);
+            photo = (ImageView) view.findViewById(R.id.img);
         }
     }
 
-    public RVAdapter(List<POI> POIList) {
-        this.POIList = POIList;
+    public RVUserAdapter(List<User> userList) {
+        this.userList = userList;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item, parent, false);
+                .inflate(R.layout.item_user, parent, false);
 
         return new ViewHolder(itemView);
     }
@@ -45,14 +48,15 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        POI poi = POIList.get(position);
-        holder.address.setText(poi.getAddress());
-        holder.name.setText(poi.getName());
+        User user = userList.get(position);
+        holder.name.setText(user.getName());
+        holder.points.setText(user.getPoints()+" PTS");
+        //holder.photo.setImageBitmap(user.getPhoto()...blabla converter para bitmap);
     }
 
     @Override
     public int getItemCount() {
-        return POIList.size();
+        return userList.size();
     }
 }
 
