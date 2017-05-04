@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "724150329476",
+    "firebase_url": "https://selfie-challenge-f7b92.firebaseio.com",
+    "project_id": "selfie-challenge-f7b92",
+    "storage_bucket": "selfie-challenge-f7b92.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724150329476:android:e3e3ddd88da3e1c8",
+        "android_client_info": {
+          "package_name": "com.ipleiria.selfiechallenge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "724150329476-je8bvpt1l8b47chg5j6at6d4d22afc3s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ipleiria.selfiechallenge",
+            "certificate_hash": "d4a137f61199aa0af55415b6ffff0422eb62c5fd"
+          }
+        },
+        {
+          "client_id": "724150329476-8ju45vkoft556k55i4qpkbrhgk5ujap9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2BmQKXSd3KznGVQ1rrUhMs6Rq18DRMWI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "724150329476-8ju45vkoft556k55i4qpkbrhgk5ujap9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

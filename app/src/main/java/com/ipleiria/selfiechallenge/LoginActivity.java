@@ -141,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void nextActivity(Profile profile){
         if(profile != null){
-            Intent main = new Intent(LoginActivity.this, MainActivity.class);
+            Intent main = new Intent(LoginActivity.this, MainActivity_Drawer.class);
             Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
             Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
             startActivity(main);
