@@ -41,6 +41,7 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
 import com.ipleiria.selfiechallenge.utils.PermissionUtils;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.contentContainer, StartFragment.newInstance(0)).commit();
         }
 
+        Instance.getInstance();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -484,5 +486,6 @@ public class MainActivity extends AppCompatActivity
 
         return message;
     }
+
 
 }

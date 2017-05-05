@@ -1,13 +1,16 @@
 package com.ipleiria.selfiechallenge.fragments;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +22,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.adapter.RVAdapter;
-import com.ipleiria.selfiechallenge.model.POI;
+import com.ipleiria.selfiechallenge.model.Challenge;
+import com.ipleiria.selfiechallenge.model.User;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -86,15 +93,21 @@ public class ChooseChallengeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
-        ArrayList<POI> lista = new ArrayList<>();
+        ArrayList<Challenge> lista = new ArrayList<>();
 
-        lista.add(new POI("Nome1", "Nome1"));
-        lista.add(new POI("Nome2", "Nome2"));
-        lista.add(new POI("Nome3", "Nome3"));
-        lista.add(new POI("Nome4", "Nome4"));
+        User marcio = new User("Marcio", 1000);
 
 
-        rvAdapter = new RVAdapter(lista);
+        /*lista.add(new Challenge("Apanhar bananas", marcio));
+        lista.add(new Challenge("Apanhar bananas", marcio));
+        lista.add(new Challenge("Apanhar bananas", marcio));
+        lista.add(new Challenge("Apanhar bananas", marcio));
+        lista.add(new Challenge("Apanhar bananas", marcio));
+        lista.add(new Challenge("Apanhar bananas", marcio));*/
+
+
+        lista = Instance.getInstance().getChallengesList();
+        rvAdapter = new RVAdapter(lista, getContext());
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -144,6 +157,27 @@ public class ChooseChallengeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+
+    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
 }

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.ipleiria.selfiechallenge.R;
 
@@ -51,14 +50,26 @@ public class StartFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_start, container, false);
-        Button btn = (Button) view.findViewById(R.id.button2);
+        Button btn_explore = (Button) view.findViewById(R.id.btn_explore);
+        Button btn_create = (Button) view.findViewById(R.id.btn_create_challenge);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+
+        btn_explore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "cliquei", Toast.LENGTH_SHORT).show();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).commit();
             }
         });
+
+        btn_create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).commit();
+            }
+        });
+
 
         return view;
     }
