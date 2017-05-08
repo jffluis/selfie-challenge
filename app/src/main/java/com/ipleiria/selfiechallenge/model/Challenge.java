@@ -11,18 +11,21 @@ import java.util.ArrayList;
 public class Challenge {
 
     private String name; //Example: take a photo eating ice cream
+    private String description;
     private User user;
     private ArrayList<Bitmap> photos;
 
 
-    public Challenge(String name, User user, ArrayList<Bitmap> allPhotos) {
+    public Challenge(String name, String description, User user, ArrayList<Bitmap> allPhotos) {
         this.name = name;
+        this.description = description;
         this.user = user;
         this.photos = allPhotos;
     }
 
-    public Challenge(String name, User user) {
+    public Challenge(String name, String description, User user) {
         this.name = name;
+        this.description = description;
         this.user = user;
     }
 
@@ -32,6 +35,14 @@ public class Challenge {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public User getUser() {
