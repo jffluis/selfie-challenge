@@ -28,12 +28,14 @@ public class Instance {
 
     private String urlPhoto;
 
-    public void setFullName(String fullName) {
+    public String setFullName(String fullName) {
         this.fullName = fullName;
+        return this.fullName;
     }
 
-    public void setUrlPhoto(String urlPhoto) {
+    public String setUrlPhoto(String urlPhoto) {
         this.urlPhoto = urlPhoto;
+        return this.urlPhoto;
     }
 
     public String getFullName() {
