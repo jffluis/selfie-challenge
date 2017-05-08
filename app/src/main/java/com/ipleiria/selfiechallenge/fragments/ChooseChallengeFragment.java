@@ -124,47 +124,6 @@ public class ChooseChallengeFragment extends Fragment {
             }
         });
 
-
-//        dbUserChallenges.addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                if (dataSnapshot.exists()) {
-//                    String nameChallengeFirebase = dataSnapshot.child("name").getValue(String.class);
-//                    String descriptionChallengeFirebase = dataSnapshot.child("description").getValue(String.class);
-//                    String userChallengeFirebase = dataSnapshot.child("user").child("name").getValue(String.class);
-//                    Integer pointsUserChallengeFirebase = dataSnapshot.child("user").child("points").getValue(Integer.class);
-//
-//                    User user = new User(userChallengeFirebase, pointsUserChallengeFirebase);
-//                    Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase, user);
-//
-//                    if (dataSnapshot.getChildrenCount() != listChallenges.size()) {
-//                            listChallenges.add(challenge);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
         listChallenges = Instance.getInstance().getChallengesList();
         rvAdapter = new RVAdapter(listChallenges, getContext());
 
