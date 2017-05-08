@@ -1,12 +1,9 @@
 package com.ipleiria.selfiechallenge.fragments;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,14 +19,16 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
-import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.adapter.RVAdapter;
 import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.model.User;
+import com.ipleiria.selfiechallenge.utils.Firebase;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -58,6 +57,8 @@ public class ChooseChallengeFragment extends Fragment {
     private int mParam1;
     private String mParam2;
 
+    private ArrayList<Challenge> listChallenges = new ArrayList<>();
+
     private GoogleApiClient mGoogleApiClient;
 
     private OnFragmentInteractionListener mListener;
@@ -65,7 +66,6 @@ public class ChooseChallengeFragment extends Fragment {
     public ChooseChallengeFragment() {
         // Required empty public constructor
     }
-
 
     public static ChooseChallengeFragment newInstance(int index) {
         ChooseChallengeFragment fragment = new ChooseChallengeFragment();
@@ -88,26 +88,85 @@ public class ChooseChallengeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
-
         View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
-        ArrayList<Challenge> lista = new ArrayList<>();
 
-        User marcio = new User("Marcio", 1000);
+        Firebase.dbUserChallenges.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+
+                    for (DataSnapshot data: dataSnapshot.getChildren()) {
+                        String nameChallengeFirebase = data.child("name").getValue(String.class);
+                        String descriptionChallengeFirebase = data.child("description").getValue(String.class);
+                        String userChallengeFirebase = data.child("user").child("name").getValue(String.class);
+                        Integer pointsUserChallengeFirebase = data.child("user").child("points").getValue(Integer.class);
+
+                        User user = new User(userChallengeFirebase, pointsUserChallengeFirebase);
+                        Challenge challenge = new Challenge(nameChallengeFirebase,descriptionChallengeFirebase,user);
+
+                        if (dataSnapshot.getChildrenCount() != listChallenges.size()) {
+                            listChallenges.add(challenge);
+                        }
+                        rvAdapter.notifyDataSetChanged();
+                    }
+
+                } else {
+                    Log.e(TAG, "Challenge on Firebase does not exists");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
-        /*lista.add(new Challenge("Apanhar bananas", marcio));
-        lista.add(new Challenge("Apanhar bananas", marcio));
-        lista.add(new Challenge("Apanhar bananas", marcio));
-        lista.add(new Challenge("Apanhar bananas", marcio));
-        lista.add(new Challenge("Apanhar bananas", marcio));
-        lista.add(new Challenge("Apanhar bananas", marcio));*/
+//        dbUserChallenges.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                if (dataSnapshot.exists()) {
+//                    String nameChallengeFirebase = dataSnapshot.child("name").getValue(String.class);
+//                    String descriptionChallengeFirebase = dataSnapshot.child("description").getValue(String.class);
+//                    String userChallengeFirebase = dataSnapshot.child("user").child("name").getValue(String.class);
+//                    Integer pointsUserChallengeFirebase = dataSnapshot.child("user").child("points").getValue(Integer.class);
+//
+//                    User user = new User(userChallengeFirebase, pointsUserChallengeFirebase);
+//                    Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase, user);
+//
+//                    if (dataSnapshot.getChildrenCount() != listChallenges.size()) {
+//                            listChallenges.add(challenge);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
 
-        lista = Instance.getInstance().getChallengesList();
-        rvAdapter = new RVAdapter(lista, getContext());
+        listChallenges = Instance.getInstance().getChallengesList();
+        rvAdapter = new RVAdapter(listChallenges, getContext());
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
