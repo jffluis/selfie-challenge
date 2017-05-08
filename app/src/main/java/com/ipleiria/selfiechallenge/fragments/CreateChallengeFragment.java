@@ -1,7 +1,9 @@
 package com.ipleiria.selfiechallenge.fragments;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,9 @@ import android.widget.Toast;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.Challenge;
+import com.ipleiria.selfiechallenge.model.User;
+import com.ipleiria.selfiechallenge.utils.Firebase;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +37,8 @@ public class CreateChallengeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private User user = new User("", 0);
+
     private OnFragmentInteractionListener mListener;
 
     public CreateChallengeFragment() {
@@ -50,6 +57,7 @@ public class CreateChallengeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             //mParam1 = getArguments().getString(ARG_PARAM1);
             //mParam2 = getArguments().getString(ARG_PARAM2);
@@ -62,15 +70,28 @@ public class CreateChallengeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_create_challenge, container, false);
         Button btn_create = (Button) view.findViewById(R.id.btn_create_challenge);
-        final EditText name = (EditText) view.findViewById(R.id.txt_challenge_name);
+        final EditText nameChallenge = (EditText) view.findViewById(R.id.txt_challenge_name);
         final EditText description = (EditText) view.findViewById(R.id.txt_challenge_description);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String username = preferences.getString("Name", "");
+        if(!username.equalsIgnoreCase(""))
+        {
+            user = new User(username, 0);
+        }
 
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(name.getText().toString() != null){
-                    Challenge newChallenge = new Challenge(name.getText().toString(), Instance.getInstance().getCurrentUser());
+                if(nameChallenge.getText().toString() != null){
+
+                    Challenge newChallenge = new Challenge(nameChallenge.getText().toString(), description.getText().toString(), user);//Instance.getInstance().getCurrentUser());
                     Instance.getInstance().addChallenge(newChallenge);
+
+                    String id = Firebase.dbUserChallenges.push().getKey();
+
+                    Firebase.dbUserChallenges.child(id).setValue(newChallenge);
+
                     Toast.makeText(getActivity(), "Added with success", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).commit();
@@ -78,9 +99,6 @@ public class CreateChallengeFragment extends Fragment {
                 }
             }
         });
-
-
-
 
         return view;
     }
