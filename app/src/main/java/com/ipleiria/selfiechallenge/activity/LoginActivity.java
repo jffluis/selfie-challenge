@@ -1,9 +1,11 @@
 package com.ipleiria.selfiechallenge.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -20,6 +22,7 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 
@@ -144,8 +147,16 @@ public class LoginActivity extends AppCompatActivity {
     private void nextActivity(Profile profile){
         if(profile != null){
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
-            Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
+            String userFullName = Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
+            String userUrlPhoto = Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
+
+            // Save Name and Photo on device - Shared Preferences
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("Name", userFullName);
+            editor.putString("Photo", userUrlPhoto);
+            editor.apply();
+
             startActivity(main);
         }
     }
