@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.model.Challenge;
@@ -78,19 +79,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Challenge challenge = challengeList.get(position);
-        holder.address.setText("não há");
+        holder.address.setText(challenge.getDescription());
         holder.name.setText(challenge.getName());
-
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences((MainActivity)context);
-        String name = preferences.getString("Name", "");
-        String creator;
-        if(!name.equalsIgnoreCase(""))
-        {
-            creator = Constants.CREATEDBY + name;  /* Edit the value here*/
-            holder.created_by.setText(creator);
-        }
-
+        holder.created_by.setText(Constants.CREATEDBY + challenge.getUser().getName());
         holder.button_enter_challenge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

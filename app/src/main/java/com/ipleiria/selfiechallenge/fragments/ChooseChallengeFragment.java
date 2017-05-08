@@ -1,5 +1,7 @@
 package com.ipleiria.selfiechallenge.fragments;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +22,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -62,6 +66,8 @@ public class ChooseChallengeFragment extends Fragment {
     private GoogleApiClient mGoogleApiClient;
 
     private OnFragmentInteractionListener mListener;
+    private ProgressDialog progressDialog;
+
 
     public ChooseChallengeFragment() {
         // Required empty public constructor
@@ -82,6 +88,7 @@ public class ChooseChallengeFragment extends Fragment {
             //mParam1 = getArguments().getInt(INDEX);
             //mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -90,32 +97,45 @@ public class ChooseChallengeFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
 
+        ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(view.getWindowToken(), 0);
+
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
 
-        Firebase.dbUserChallenges.addListenerForSingleValueEvent(new ValueEventListener() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Fetching challenges..");
+        progressDialog.show();
+
+        Firebase.dbUserChallenges.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.exists()) {
+                    String nameChallengeFirebase = dataSnapshot.child("name").getValue(String.class);
+                    String descriptionChallengeFirebase = dataSnapshot.child("description").getValue(String.class);
+                    String userName = dataSnapshot.child("user").child("name").getValue(String.class);
+                    Integer points = dataSnapshot.child("user").child("points").getValue(Integer.class);
+                    User user =  new User(userName, points);
 
-                    for (DataSnapshot data: dataSnapshot.getChildren()) {
-                        String nameChallengeFirebase = data.child("name").getValue(String.class);
-                        String descriptionChallengeFirebase = data.child("description").getValue(String.class);
-                        String userChallengeFirebase = data.child("user").child("name").getValue(String.class);
-                        Integer pointsUserChallengeFirebase = data.child("user").child("points").getValue(Integer.class);
-
-                        User user = new User(userChallengeFirebase, pointsUserChallengeFirebase);
-                        Challenge challenge = new Challenge(nameChallengeFirebase,descriptionChallengeFirebase,user);
-
-                        if (dataSnapshot.getChildrenCount() != listChallenges.size()) {
-                            listChallenges.add(challenge);
-                        }
-                        rvAdapter.notifyDataSetChanged();
-                    }
-
-                } else {
-                    Log.e(TAG, "Challenge on Firebase does not exists");
+                    Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase,user);
+                    listChallenges.add(challenge);
+                    rvAdapter.notifyDataSetChanged();
+                    progressDialog.dismiss();
                 }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -197,5 +217,7 @@ public class ChooseChallengeFragment extends Fragment {
         }
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
+
+
 
 }
