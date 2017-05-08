@@ -2,8 +2,10 @@ package com.ipleiria.selfiechallenge.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.icu.util.ValueIterator;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +19,8 @@ import android.widget.Toast;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.model.Challenge;
+import com.ipleiria.selfiechallenge.utils.Constants;
+import com.ipleiria.selfiechallenge.utils.Firebase;
 import com.ipleiria.selfiechallenge.utils.PermissionUtils;
 
 import java.util.ArrayList;
@@ -32,17 +36,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
     private final Context context;
 
+    SharedPreferences preferences;
+
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        TextView address, name;
+        TextView address, name, created_by;
         Button button_enter_challenge;
 
         ViewHolder(View view) {
             super(view);
             address = (TextView) view.findViewById(R.id.address);
             name = (TextView) view.findViewById(R.id.name);
+            created_by = (TextView)view.findViewById(R.id.created_by);
             button_enter_challenge = (Button) view.findViewById(R.id.enter_challenge);
         }
 
@@ -73,6 +80,16 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
         Challenge challenge = challengeList.get(position);
         holder.address.setText("não há");
         holder.name.setText(challenge.getName());
+
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences((MainActivity)context);
+        String name = preferences.getString("Name", "");
+        String creator;
+        if(!name.equalsIgnoreCase(""))
+        {
+            creator = Constants.CREATEDBY + name;  /* Edit the value here*/
+            holder.created_by.setText(creator);
+        }
 
         holder.button_enter_challenge.setOnClickListener(new View.OnClickListener() {
             @Override
