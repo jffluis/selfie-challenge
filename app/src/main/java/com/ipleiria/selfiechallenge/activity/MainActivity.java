@@ -185,8 +185,9 @@ public class MainActivity extends AppCompatActivity
 
         }*/
 
-        getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.contentContainer, fragment).commit();
+
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                R.anim.fade_out).replace(R.id.contentContainer, fragment).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

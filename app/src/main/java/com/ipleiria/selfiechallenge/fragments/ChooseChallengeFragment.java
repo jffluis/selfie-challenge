@@ -111,7 +111,8 @@ public class ChooseChallengeFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                        R.anim.fade_out)
                         .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).addToBackStack(null).commit();
             }
         });

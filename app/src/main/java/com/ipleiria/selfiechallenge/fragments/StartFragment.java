@@ -57,7 +57,8 @@ public class StartFragment extends Fragment {
         btn_explore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                        R.anim.fade_out)
                         .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).addToBackStack(null).commit();
             }
         });
@@ -65,7 +66,8 @@ public class StartFragment extends Fragment {
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                        R.anim.fade_out)
                         .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).addToBackStack(null).commit();
             }
         });

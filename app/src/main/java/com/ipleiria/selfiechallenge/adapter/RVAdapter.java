@@ -2,6 +2,8 @@ package com.ipleiria.selfiechallenge.adapter;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -78,6 +80,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
         return new ViewHolder(itemView);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
@@ -89,14 +95,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                Toast.makeText(view.getContext(), "OUUUUU" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
                 Instance.getInstance().setCurrentChallenge(challenge);
                 PhotoUtil.startCamera(activity);
             }
         });
-
-        System.out.println("TAMANHOOOOOO:"+ challenge.getPhotos().size());
-
 
         if(challenge.getPhotos().size() > 0){
 
@@ -104,24 +106,30 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .with(activity)
                     .load(challenge.getPhotos().get(0))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo1);
-            System.out.println("OUUU" + challenge.getPhotos());
 
+        } else {
+            holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
         if(challenge.getPhotos().size() > 1){
             Glide
                     .with(activity)
                     .load(challenge.getPhotos().get(1))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo2);
 
             System.out.println("OUUU" + challenge.getPhotos());
+        } else {
+            holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
         if(challenge.getPhotos().size() > 2){
             Glide
                     .with(activity)
                     .load(challenge.getPhotos().get(2))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo3);
         }
         if(challenge.getPhotos().size() > 3){
@@ -129,22 +137,47 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .with(activity)
                     .load(challenge.getPhotos().get(3))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo4);
+        } else {
+            holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
         if(challenge.getPhotos().size() > 4){
             Glide
                     .with(activity)
                     .load(challenge.getPhotos().get(4))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo5);
+        } else {
+            holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
         if(challenge.getPhotos().size() > 5){
             Glide
                     .with(activity)
                     .load(challenge.getPhotos().get(5))
                     .crossFade()
+                    .animate(R.anim.animacao)
                     .into(holder.photo6);
+        } else {
+            holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
+
+        int pos = getItemViewType(position);
+
+        if(challenge.getPhotos().size() > 0){
+            if(challenge.getPhotos().get(0) == null) {
+                holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
+            } else {
+                Glide
+                        .with(activity)
+                        .load(challenge.getPhotos().get(0))
+                        .crossFade()
+                        .animate(R.anim.animacao)
+                        .into(holder.photo1);
+            }
+        }
+
     }
 
     @Override

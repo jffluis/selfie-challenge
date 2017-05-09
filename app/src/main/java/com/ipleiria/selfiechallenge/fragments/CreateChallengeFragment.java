@@ -84,7 +84,8 @@ public class CreateChallengeFragment extends Fragment {
                     Firebase.dbUserChallenges.child(id).setValue(newChallenge);
 
                     Toast.makeText(getActivity(), "Added with success", Toast.LENGTH_SHORT).show();
-                    getActivity().getSupportFragmentManager().beginTransaction()
+                    getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
                             .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
