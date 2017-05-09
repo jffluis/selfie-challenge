@@ -158,6 +158,13 @@ public class LoginActivity extends AppCompatActivity {
             editor.apply();
 
             startActivity(main);
+            finish();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

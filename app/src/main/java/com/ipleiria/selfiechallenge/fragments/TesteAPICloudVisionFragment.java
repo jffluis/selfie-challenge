@@ -242,7 +242,7 @@ public class TesteAPICloudVisionFragment extends Fragment {
                             new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
                                 /**
                                  * We override this so we can inject important identifying fields into the HTTP
-                                 * headers. This enables use of a restricted cloud platform API key.
+                                 * headers. This enables use of a restricted cloud platform PhotoUtil key.
                                  */
                                 @Override
                                 protected void initializeVisionRequest(VisionRequest<?> visionRequest)
@@ -304,7 +304,7 @@ public class TesteAPICloudVisionFragment extends Fragment {
 
                     Vision.Images.Annotate annotateRequest =
                             vision.images().annotate(batchAnnotateImagesRequest);
-                    // Due to a bug: requests to Vision API containing large images fail when GZipped.
+                    // Due to a bug: requests to Vision PhotoUtil containing large images fail when GZipped.
                     annotateRequest.setDisableGZipContent(true);
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
@@ -314,12 +314,12 @@ public class TesteAPICloudVisionFragment extends Fragment {
                     return convertResponseToString(response);
 
                 } catch (GoogleJsonResponseException e) {
-                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                    Log.d(TAG, "failed to make PhotoUtil request because " + e.getContent());
                 } catch (IOException e) {
-                    Log.d(TAG, "failed to make API request because of other IOException " +
+                    Log.d(TAG, "failed to make PhotoUtil request because of other IOException " +
                             e.getMessage());
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
+                return "Cloud Vision PhotoUtil request failed. Check logs for details.";
             }
 
             protected void onPostExecute(String result) {

@@ -58,7 +58,7 @@ public class StartFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).commit();
+                        .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).addToBackStack(null).commit();
             }
         });
 
@@ -66,7 +66,7 @@ public class StartFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).commit();
+                        .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).addToBackStack(null).commit();
             }
         });
 

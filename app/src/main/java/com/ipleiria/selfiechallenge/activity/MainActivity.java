@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
@@ -43,6 +42,7 @@ import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
+import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
 import com.ipleiria.selfiechallenge.utils.PermissionUtils;
 import com.ipleiria.selfiechallenge.R;
@@ -51,7 +51,6 @@ import com.ipleiria.selfiechallenge.fragments.StartFragment;
 import com.ipleiria.selfiechallenge.fragments.TesteAPICloudVisionFragment;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +70,6 @@ public class MainActivity extends AppCompatActivity
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
-    private TextView mImageDetails;
-    private ImageView mMainImage;
-    private ImageView fotoImageView;
-    private Bitmap b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +85,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        mImageDetails = (TextView) findViewById(R.id.image_details);
-        mMainImage = (ImageView) findViewById(R.id.main_image);
-        fotoImageView = (ImageView) findViewById(R.id.imageView3);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -133,11 +122,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        Log.d("VALOOOOOOOOR:", String.valueOf(getFragmentManager().getBackStackEntryCount()));
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        }
+
+        else {
+           super.onBackPressed();
         }
     }
 
@@ -201,34 +194,34 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void startCamera() {
-        if (PermissionUtils.requestPermission(
-                this,
-                CAMERA_PERMISSIONS_REQUEST,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.CAMERA)) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivityForResult(intent, CAMERA_IMAGE_REQUEST);
-        }
-    }
-
-    public File getCameraFile() {
-        File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return new File(dir, FILE_NAME);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            uploadImage(data.getData());
-        } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
-            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
-            uploadImage(photoUri);
+   //     if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            //uploadImage(data.getData());
+
+        if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() +
+                    ".provider", PhotoUtil.getCameraFile(this));
+
+            //se passar no cloud vision api adiciona ao firebase e à aplicação
+
+
+            try {
+                Bitmap bitmap =
+                        scaleBitmapDown(
+                                MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri),
+                                1200);
+
+                Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
         }
     }
 
@@ -239,7 +232,7 @@ public class MainActivity extends AppCompatActivity
         switch (requestCode) {
             case CAMERA_PERMISSIONS_REQUEST:
                 if (PermissionUtils.permissionGranted(requestCode, CAMERA_PERMISSIONS_REQUEST, grantResults)) {
-                    startCamera();
+                    //startCamera();
                 }
                 break;
             case GALLERY_PERMISSIONS_REQUEST:
@@ -260,7 +253,7 @@ public class MainActivity extends AppCompatActivity
                                 1200);
 
                 callCloudVision(bitmap);
-                mMainImage.setImageBitmap(bitmap);
+
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
@@ -274,7 +267,6 @@ public class MainActivity extends AppCompatActivity
 
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
-        mImageDetails.setText(R.string.loading_message);
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
@@ -288,7 +280,7 @@ public class MainActivity extends AppCompatActivity
                             new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
                                 /**
                                  * We override this so we can inject important identifying fields into the HTTP
-                                 * headers. This enables use of a restricted cloud platform API key.
+                                 * headers. This enables use of a restricted cloud platform PhotoUtil key.
                                  */
                                 @Override
                                 protected void initializeVisionRequest(VisionRequest<?> visionRequest)
@@ -350,7 +342,7 @@ public class MainActivity extends AppCompatActivity
 
                     Vision.Images.Annotate annotateRequest =
                             vision.images().annotate(batchAnnotateImagesRequest);
-                    // Due to a bug: requests to Vision API containing large images fail when GZipped.
+                    // Due to a bug: requests to Vision PhotoUtil containing large images fail when GZipped.
                     annotateRequest.setDisableGZipContent(true);
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
@@ -358,16 +350,16 @@ public class MainActivity extends AppCompatActivity
                     return convertResponseToString(response);
 
                 } catch (GoogleJsonResponseException e) {
-                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                    Log.d(TAG, "failed to make PhotoUtil request because " + e.getContent());
                 } catch (IOException e) {
-                    Log.d(TAG, "failed to make API request because of other IOException " +
+                    Log.d(TAG, "failed to make PhotoUtil request because of other IOException " +
                             e.getMessage());
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
+                return "Cloud Vision PhotoUtil request failed. Check logs for details.";
             }
 
             protected void onPostExecute(String result) {
-                mImageDetails.setText(result);
+                //mImageDetails.setText(result);
             }
         }.execute();
     }
@@ -486,6 +478,7 @@ public class MainActivity extends AppCompatActivity
 
         return message;
     }
+
 
 
 }

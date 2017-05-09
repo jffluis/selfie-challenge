@@ -94,7 +94,7 @@ public class CreateChallengeFragment extends Fragment {
 
                     Toast.makeText(getActivity(), "Added with success", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).commit();
+                            .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             }

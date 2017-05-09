@@ -27,6 +27,7 @@ public class Challenge {
         this.name = name;
         this.description = description;
         this.user = user;
+        this.photos = new ArrayList<>();
     }
 
     public String getName() {
@@ -57,12 +58,7 @@ public class Challenge {
         return photos;
     }
 
-    public void setPhotos(ArrayList<Bitmap> photos) {
-        this.photos = photos;
-    }
-
     public void addPhoto(Bitmap photo){
        this.photos.add(photo);
-
     }
 }

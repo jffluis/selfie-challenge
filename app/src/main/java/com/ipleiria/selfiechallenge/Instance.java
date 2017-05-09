@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 public class Instance {
 
+    private Challenge currentChallenge;
+
     private static final Instance ourInstance = new Instance();
     private User currentUser;
     private ArrayList<Challenge> challengesList;
@@ -60,5 +62,13 @@ public class Instance {
 
     public void setChallengesList(ArrayList<Challenge> challengesList) {
         this.challengesList = challengesList;
+    }
+
+    public Challenge getCurrentChallenge() {
+        return currentChallenge;
+    }
+
+    public void setCurrentChallenge(Challenge currentChallenge) {
+        this.currentChallenge = currentChallenge;
     }
 }

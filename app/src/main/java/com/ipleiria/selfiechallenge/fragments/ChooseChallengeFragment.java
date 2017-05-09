@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +35,7 @@ import com.ipleiria.selfiechallenge.model.User;
 import com.ipleiria.selfiechallenge.utils.Firebase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -60,8 +62,6 @@ public class ChooseChallengeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private int mParam1;
     private String mParam2;
-
-    private ArrayList<Challenge> listChallenges = new ArrayList<>();
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -97,6 +97,14 @@ public class ChooseChallengeFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
 
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.contentContainer, CreateChallengeFragment.newInstance(0)).addToBackStack(null).commit();
+            }
+        });
         ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(view.getWindowToken(), 0);
 
@@ -106,35 +114,12 @@ public class ChooseChallengeFragment extends Fragment {
         progressDialog.setMessage("Fetching challenges..");
         progressDialog.show();
 
-        Firebase.dbUserChallenges.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.exists()) {
-                    String nameChallengeFirebase = dataSnapshot.child("name").getValue(String.class);
-                    String descriptionChallengeFirebase = dataSnapshot.child("description").getValue(String.class);
-                    String userName = dataSnapshot.child("user").child("name").getValue(String.class);
-                    Integer points = dataSnapshot.child("user").child("points").getValue(Integer.class);
-                    User user =  new User(userName, points);
-
-                    Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase,user);
-                    listChallenges.add(challenge);
-                    rvAdapter.notifyDataSetChanged();
-                    progressDialog.dismiss();
-                }
-            }
+        Firebase.dbUserChallenges.addValueEventListener(new ValueEventListener() {
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Instance.getInstance().getChallengesList().clear();
+                getAllTask(dataSnapshot);
 
             }
 
@@ -144,33 +129,11 @@ public class ChooseChallengeFragment extends Fragment {
             }
         });
 
-        listChallenges = Instance.getInstance().getChallengesList();
-        rvAdapter = new RVAdapter(listChallenges, getContext());
-
+        rvAdapter = new RVAdapter(Instance.getInstance().getChallengesList(), getActivity());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(rvAdapter);
-
-        SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
-                getActivity().getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-        if(autocompleteFragment == null) {
-            autocompleteFragment = (SupportPlaceAutocompleteFragment) SupportPlaceAutocompleteFragment.instantiate(getActivity(), "com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment");
-            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                @Override
-                public void onPlaceSelected(Place place) {
-
-                    Toast.makeText(getActivity(), place.getName(), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onError(Status status) {
-
-                }
-            });
-
-            getChildFragmentManager().beginTransaction().replace(R.id.autocomplete_fragment, autocompleteFragment).commit();
-        }
 
         return view;
     }
@@ -218,6 +181,17 @@ public class ChooseChallengeFragment extends Fragment {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-
-
+    private void getAllTask(DataSnapshot dataSnapshot){
+        for (DataSnapshot ds: dataSnapshot.getChildren()){
+            String nameChallengeFirebase = ds.child("name").getValue(String.class);
+            String descriptionChallengeFirebase = ds.child("description").getValue(String.class);
+            String userName = ds.child("user").child("name").getValue(String.class);
+            Integer points = ds.child("user").child("points").getValue(Integer.class);
+            User user =  new User(userName, points);
+            Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase,user);
+            Instance.getInstance().getChallengesList().add(challenge);
+            rvAdapter.notifyDataSetChanged();
+            progressDialog.dismiss();
+        }
+    }
 }

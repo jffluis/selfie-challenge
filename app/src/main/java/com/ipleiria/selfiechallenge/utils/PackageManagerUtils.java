@@ -11,13 +11,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Provides utility logic for getting the app's SHA1 signature. Used with restricted API keys.
+ * Provides utility logic for getting the app's SHA1 signature. Used with restricted PhotoUtil keys.
  *
  */
 public class PackageManagerUtils {
 
     /**
-     * Gets the SHA1 signature, hex encoded for inclusion with Google Cloud Platform API requests
+     * Gets the SHA1 signature, hex encoded for inclusion with Google Cloud Platform PhotoUtil requests
      *
      * @param packageName Identifies the APK whose signature should be extracted.
      * @return a lowercase, hex-encoded
