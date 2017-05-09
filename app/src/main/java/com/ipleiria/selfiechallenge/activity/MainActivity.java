@@ -1,5 +1,6 @@
 package com.ipleiria.selfiechallenge.activity;
 
+import android.app.ProgressDialog;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -491,6 +493,9 @@ public class MainActivity extends AppCompatActivity
 
 
     private void uploadFile(Bitmap bitmap) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Uploading photo..");
+        progressDialog.show();
         Random random = new Random();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         final String photoURL = "images/"+Instance.getInstance().getCurrentChallenge().getId()+"/"+System.currentTimeMillis()+ random.nextInt(300)+".jpg";
@@ -499,7 +504,7 @@ public class MainActivity extends AppCompatActivity
         StorageReference mountainImagesRef = storageRef.child(photoURL);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
         byte[] data = baos.toByteArray();
         UploadTask uploadTask = mountainImagesRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -516,7 +521,7 @@ public class MainActivity extends AppCompatActivity
                 DatabaseReference photosRef = objRef.child("photos").child(String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(300)));
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 photosRef.setValue(String.valueOf(downloadUrl));
-
+                progressDialog.dismiss();
                 Log.d("downloadUrl-->", "" + downloadUrl);
             }
         });

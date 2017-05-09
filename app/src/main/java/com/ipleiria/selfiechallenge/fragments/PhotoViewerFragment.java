@@ -68,21 +68,6 @@ public class PhotoViewerFragment extends Fragment {
 
         com.like.LikeButton likeButton = (com.like.LikeButton) view.findViewById(R.id.like_button);
 
-        likeButton.setOnLikeListener(new OnLikeListener() {
-            @Override
-            public void liked(com.like.LikeButton likeButton) {
-
-                //lida-se com o like
-            }
-
-            @Override
-            public void unLiked(com.like.LikeButton likeButton) {
-                //lida-se com a remoção do like
-            }
-        });
-
-
-
         viewPager = (ViewPager) view.findViewById(R.id.pager);
         adapter = new FullScreenImageAdapter(getActivity(),
                 Instance.getInstance().challengeToSee.getPhotos());
