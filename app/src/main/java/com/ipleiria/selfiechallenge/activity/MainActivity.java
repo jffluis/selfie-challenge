@@ -1,5 +1,6 @@
 package com.ipleiria.selfiechallenge.activity;
 
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,8 +23,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.googleapis.util.Utils;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -40,8 +44,13 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
+import com.ipleiria.selfiechallenge.utils.Firebase;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
 import com.ipleiria.selfiechallenge.utils.PermissionUtils;
@@ -55,6 +64,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -81,7 +91,6 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.contentContainer, StartFragment.newInstance(0)).commit();
         }
 
-        Instance.getInstance();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -214,7 +223,9 @@ public class MainActivity extends AppCompatActivity
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri),
                                 1200);
 
-                Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
+                //Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
+
+                uploadFile(bitmap);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -480,5 +491,37 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    private void uploadFile(Bitmap bitmap) {
+        Random random = new Random();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final String photoURL = "images/"+Instance.getInstance().getCurrentChallenge().getId()+"/"+System.currentTimeMillis()+ random.nextInt(300)+".jpg";
+
+        StorageReference storageRef = storage.getReferenceFromUrl(Firebase.StorageURL);
+        StorageReference mountainImagesRef = storageRef.child(photoURL);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+        byte[] data = baos.toByteArray();
+        UploadTask uploadTask = mountainImagesRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                Random random = new Random();
+                DatabaseReference objRef = Firebase.dbUserChallenges.child(Instance.getInstance().getCurrentChallenge().getId());
+                DatabaseReference photosRef = objRef.child("photos").child(String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(300)));
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                photosRef.setValue(String.valueOf(downloadUrl));
+
+                Log.d("downloadUrl-->", "" + downloadUrl);
+            }
+        });
+
+    }
 
 }

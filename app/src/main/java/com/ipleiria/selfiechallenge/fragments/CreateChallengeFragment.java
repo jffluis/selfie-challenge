@@ -37,8 +37,6 @@ public class CreateChallengeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private User user = new User("", 0);
-
     private OnFragmentInteractionListener mListener;
 
     public CreateChallengeFragment() {
@@ -73,19 +71,12 @@ public class CreateChallengeFragment extends Fragment {
         final EditText nameChallenge = (EditText) view.findViewById(R.id.txt_challenge_name);
         final EditText description = (EditText) view.findViewById(R.id.txt_challenge_description);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String username = preferences.getString("Name", "");
-        if(!username.equalsIgnoreCase(""))
-        {
-            user = new User(username, 0);
-        }
-
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(nameChallenge.getText().toString() != null){
 
-                    Challenge newChallenge = new Challenge(nameChallenge.getText().toString(), description.getText().toString(), user);//Instance.getInstance().getCurrentUser());
+                    Challenge newChallenge = new Challenge(nameChallenge.getText().toString(), description.getText().toString(), Instance.getInstance().getCurrentUser());//Instance.getInstance().getCurrentUser());
                     Instance.getInstance().addChallenge(newChallenge);
 
                     String id = Firebase.dbUserChallenges.push().getKey();

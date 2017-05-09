@@ -3,8 +3,10 @@ package com.ipleiria.selfiechallenge.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,15 +20,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.StorageReference;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.adapter.RVAdapter;
@@ -34,8 +41,11 @@ import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.model.User;
 import com.ipleiria.selfiechallenge.utils.Firebase;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -182,16 +192,51 @@ public class ChooseChallengeFragment extends Fragment {
     }
 
     private void getAllTask(DataSnapshot dataSnapshot){
+
         for (DataSnapshot ds: dataSnapshot.getChildren()){
+            ArrayList<String> photosUrl = new ArrayList<>();
             String nameChallengeFirebase = ds.child("name").getValue(String.class);
+            String id = ds.getKey();
             String descriptionChallengeFirebase = ds.child("description").getValue(String.class);
             String userName = ds.child("user").child("name").getValue(String.class);
             Integer points = ds.child("user").child("points").getValue(Integer.class);
+
+            for(DataSnapshot photo: ds.child("photos").getChildren()){
+                String photoURL = photo.getValue(String.class);
+                photosUrl.add(photoURL);
+            }
+
             User user =  new User(userName, points);
-            Challenge challenge = new Challenge(nameChallengeFirebase, descriptionChallengeFirebase,user);
+            Challenge challenge = new Challenge(id, nameChallengeFirebase, descriptionChallengeFirebase,user, photosUrl);
             Instance.getInstance().getChallengesList().add(challenge);
             rvAdapter.notifyDataSetChanged();
             progressDialog.dismiss();
+        }
+
+    }
+
+
+    private void showImageFromFireBaseDataBase(StorageReference storageRef)
+    {
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            final Bitmap[] bitmap = new Bitmap[1];
+            storageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Log.e("Test", "success!");
+                    bitmap[0] = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+
+                    //raysImage.setImageBitmap(bitmap[0]);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Log.e("Test", "fail :( " + exception.getMessage());
+                }
+            });
+        }catch(IOException e){
+            Log.e("ImageView",e.toString());
         }
     }
 }

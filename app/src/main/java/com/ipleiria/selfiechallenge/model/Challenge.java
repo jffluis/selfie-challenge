@@ -1,7 +1,5 @@
 package com.ipleiria.selfiechallenge.model;
 
-import android.graphics.Bitmap;
-
 import java.util.ArrayList;
 
 /**
@@ -11,23 +9,32 @@ import java.util.ArrayList;
 public class Challenge {
 
     private String name; //Example: take a photo eating ice cream
+    private String id;
     private String description;
     private User user;
-    private ArrayList<Bitmap> photos;
+    private ArrayList<String> photoURL;
 
 
-    public Challenge(String name, String description, User user, ArrayList<Bitmap> allPhotos) {
+    public Challenge(String name, String description, User user, ArrayList<String> URLphotos) {
         this.name = name;
         this.description = description;
         this.user = user;
-        this.photos = allPhotos;
+        this.photoURL = URLphotos;
     }
 
     public Challenge(String name, String description, User user) {
         this.name = name;
         this.description = description;
         this.user = user;
-        this.photos = new ArrayList<>();
+        this.photoURL = new ArrayList<>();
+    }
+
+    public Challenge(String id, String name, String description, User user, ArrayList<String> URLphotos) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.user = user;
+        this.photoURL = URLphotos;
     }
 
     public String getName() {
@@ -54,11 +61,19 @@ public class Challenge {
         this.user = user;
     }
 
-    public ArrayList<Bitmap> getPhotos() {
-        return photos;
+    public ArrayList<String> getPhotos() {
+        return photoURL;
     }
 
-    public void addPhoto(Bitmap photo){
-       this.photos.add(photo);
+    public void addPhoto(String photoURL){
+       this.photoURL.add(photoURL);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

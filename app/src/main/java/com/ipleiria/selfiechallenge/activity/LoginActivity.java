@@ -62,6 +62,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.login_activity);
+        Instance.getInstance();
+
 
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
@@ -147,18 +149,10 @@ public class LoginActivity extends AppCompatActivity {
     private void nextActivity(Profile profile){
         if(profile != null){
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            String userFullName = Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
-            String userUrlPhoto = Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
-
-            // Save Name and Photo on device - Shared Preferences
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("Name", userFullName);
-            editor.putString("Photo", userUrlPhoto);
-            editor.apply();
+            Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
+            Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
 
             startActivity(main);
-            finish();
         }
     }
 

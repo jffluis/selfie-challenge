@@ -22,7 +22,6 @@ public class Instance {
     }
 
     private Instance() {
-        currentUser = new User(getFullName(), 1000);
         challengesList = new ArrayList<>();
     }
 
@@ -30,17 +29,21 @@ public class Instance {
 
     private String urlPhoto;
 
-    public String setFullName(String fullName) {
+    public void setFullName(String fullName) {
         this.fullName = fullName;
-        return this.fullName;
+        if(currentUser == null) {
+            currentUser = new User(this.getFullName(), 1000);
+        }else{
+            currentUser.setName(fullName);
+        }
     }
 
-    public String setUrlPhoto(String urlPhoto) {
+    public void setUrlPhoto(String urlPhoto) {
         this.urlPhoto = urlPhoto;
-        return this.urlPhoto;
     }
 
     public String getFullName() {
+        System.out.println(fullName);
         return fullName;
     }
 

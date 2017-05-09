@@ -3,6 +3,7 @@ package com.ipleiria.selfiechallenge.adapter;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.Challenge;
@@ -93,24 +95,55 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             }
         });
 
+        System.out.println("TAMANHOOOOOO:"+ challenge.getPhotos().size());
+
 
         if(challenge.getPhotos().size() > 0){
-            holder.photo1.setImageBitmap(challenge.getPhotos().get(0));
+
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(0))
+                    .crossFade()
+                    .into(holder.photo1);
+            System.out.println("OUUU" + challenge.getPhotos());
+
         }
         if(challenge.getPhotos().size() > 1){
-            holder.photo2.setImageBitmap(challenge.getPhotos().get(1));
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(1))
+                    .crossFade()
+                    .into(holder.photo2);
+
+            System.out.println("OUUU" + challenge.getPhotos());
         }
         if(challenge.getPhotos().size() > 2){
-            holder.photo3.setImageBitmap(challenge.getPhotos().get(2));
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(2))
+                    .crossFade()
+                    .into(holder.photo3);
         }
         if(challenge.getPhotos().size() > 3){
-            holder.photo4.setImageBitmap(challenge.getPhotos().get(3));
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(3))
+                    .crossFade()
+                    .into(holder.photo4);
         }
         if(challenge.getPhotos().size() > 4){
-            holder.photo5.setImageBitmap(challenge.getPhotos().get(4));
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(4))
+                    .crossFade()
+                    .into(holder.photo5);
         }
         if(challenge.getPhotos().size() > 5){
-            holder.photo6.setImageBitmap(challenge.getPhotos().get(5));
+            Glide
+                    .with(activity)
+                    .load(challenge.getPhotos().get(5))
+                    .crossFade()
+                    .into(holder.photo6);
         }
     }
 
