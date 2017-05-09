@@ -86,10 +86,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__drawer);
 
-        if(savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.contentContainer, StartFragment.newInstance(0)).commit();
-        }
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                    .replace(R.id.contentContainer, StartFragment.newInstance(0)).addToBackStack(null).commit();
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -187,7 +185,7 @@ public class MainActivity extends AppCompatActivity
 
 
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
-                R.anim.fade_out).replace(R.id.contentContainer, fragment).commit();
+                R.anim.fade_out).replace(R.id.contentContainer, fragment).addToBackStack(null).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

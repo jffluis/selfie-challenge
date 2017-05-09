@@ -1,27 +1,24 @@
 package com.ipleiria.selfiechallenge.adapter;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.fragments.PhotoViewerFragment;
 import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 import com.ipleiria.selfiechallenge.utils.Constants;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,11 +28,7 @@ import java.util.List;
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
     private List<Challenge> challengeList;
-
     private final Activity activity;
-
-    SharedPreferences preferences;
-
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -43,6 +36,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
         TextView address, name, created_by;
         Button button_enter_challenge;
         ImageView photo1, photo2, photo3, photo4, photo5, photo6;
+
+
 
         ViewHolder(View view) {
             super(view);
@@ -85,8 +80,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
         return position;
     }
 
+
+
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+
         final Challenge challenge = challengeList.get(position);
         holder.address.setText(challenge.getDescription());
         holder.name.setText(challenge.getName());
@@ -109,6 +107,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .animate(R.anim.animacao)
                     .into(holder.photo1);
 
+            holder.photo1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 0;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
+
+                }
+            });
+
         } else {
             holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
@@ -120,7 +132,19 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .animate(R.anim.animacao)
                     .into(holder.photo2);
 
-            System.out.println("OUUU" + challenge.getPhotos());
+            holder.photo2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 1;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+
+                }
+            });
         } else {
             holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
@@ -131,6 +155,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .crossFade()
                     .animate(R.anim.animacao)
                     .into(holder.photo3);
+
+            holder.photo3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 2;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+
+                }
+            });
         }
         if(challenge.getPhotos().size() > 3){
             Glide
@@ -139,6 +177,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .crossFade()
                     .animate(R.anim.animacao)
                     .into(holder.photo4);
+
+            holder.photo4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 3;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+
+                }
+            });
         } else {
             holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
@@ -149,6 +201,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .crossFade()
                     .animate(R.anim.animacao)
                     .into(holder.photo5);
+
+            holder.photo5.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 4;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+
+                }
+            });
         } else {
             holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
@@ -159,6 +225,20 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .crossFade()
                     .animate(R.anim.animacao)
                     .into(holder.photo6);
+
+            holder.photo6.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Instance.getInstance().challengeToSee = challenge;
+                    Instance.getInstance().selectedPhotoPos = 5;
+
+                    ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
+                            R.anim.fade_out)
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+
+                }
+            });
         } else {
             holder.photo1.setImageBitmap(BitmapFactory.decodeResource(activity.getResources(), R.drawable.com_facebook_profile_picture_blank_portrait));
         }
@@ -177,6 +257,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                         .into(holder.photo1);
             }
         }
+
 
     }
 

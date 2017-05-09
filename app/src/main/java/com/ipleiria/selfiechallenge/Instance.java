@@ -16,6 +16,8 @@ public class Instance {
     private static final Instance ourInstance = new Instance();
     private User currentUser;
     private ArrayList<Challenge> challengesList;
+    public Challenge challengeToSee;
+    public int selectedPhotoPos;
 
     public static Instance getInstance() {
         return ourInstance;

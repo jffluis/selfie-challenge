@@ -151,8 +151,8 @@ public class LoginActivity extends AppCompatActivity {
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
             Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
             Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
-
             startActivity(main);
+            finish();
         }
     }
 

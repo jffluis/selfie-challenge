@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,6 +107,9 @@ public class ChooseChallengeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_choose_challenge, container, false);
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Challenges");
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

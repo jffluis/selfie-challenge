@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/imgDisplay"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="100dp"/>
+
+    <Button
+        android:id="@+id/btnClose"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:text="Close" />
+
+
+    <com.like.LikeButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:anim_scale_factor="2"
+        app:circle_end_color="@color/colorAccent"
+        app:circle_start_color="@color/colorPrimary"
+        app:dots_primary_color="@color/colorAccent"
+        app:dots_secondary_color="@color/colorPrimary"
+        app:icon_size="50dp"
+        app:icon_type="Heart"
+        android:id="@+id/like_button"
+        />
+
+
+</RelativeLayout>

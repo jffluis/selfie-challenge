@@ -1,45 +1,53 @@
 package com.ipleiria.selfiechallenge.fragments;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.facebook.share.internal.LikeButton;
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.adapter.FullScreenImageAdapter;
+import com.like.OnLikeListener;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CameraFragment.OnFragmentInteractionListener} interface
+ * {@link PhotoViewerFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link CameraFragment#newInstance} factory method to
+ * Use the {@link PhotoViewerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CameraFragment extends Fragment {
+public class PhotoViewerFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String INDEX = "index";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
+    private static int pos;
     private String mParam2;
+
+    private FullScreenImageAdapter adapter;
+    private ViewPager viewPager;
 
     private OnFragmentInteractionListener mListener;
 
-    public CameraFragment() {
+    public PhotoViewerFragment() {
         // Required empty public constructor
     }
 
-    // TODO: Rename and change types and number of parameters
-    public static CameraFragment newInstance(int index) {
-        CameraFragment fragment = new CameraFragment();
+    public static PhotoViewerFragment newInstance(int index) {
+        PhotoViewerFragment fragment = new PhotoViewerFragment();
         Bundle args = new Bundle();
         args.putInt(INDEX, index);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -47,7 +55,7 @@ public class CameraFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-           // mParam1 = getArguments().getString(ARG_PARAM1);
+
            // mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
@@ -55,10 +63,34 @@ public class CameraFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_camera, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_photo_viewer, container, false);
+
+        com.like.LikeButton likeButton = (com.like.LikeButton) view.findViewById(R.id.like_button);
+
+        likeButton.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(com.like.LikeButton likeButton) {
+
+                //lida-se com o like
+            }
+
+            @Override
+            public void unLiked(com.like.LikeButton likeButton) {
+                //lida-se com a remoção do like
+            }
+        });
 
 
+
+        viewPager = (ViewPager) view.findViewById(R.id.pager);
+        adapter = new FullScreenImageAdapter(getActivity(),
+                Instance.getInstance().challengeToSee.getPhotos());
+        viewPager.setAdapter(adapter);
+        // displaying selected image first
+        viewPager.setCurrentItem(Instance.getInstance().selectedPhotoPos);
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

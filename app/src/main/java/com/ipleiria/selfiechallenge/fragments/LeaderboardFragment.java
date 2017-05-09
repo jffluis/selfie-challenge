@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +71,9 @@ public class LeaderboardFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Leaderboard");
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_leaderboard);
         ArrayList<User> lista = new ArrayList<>();

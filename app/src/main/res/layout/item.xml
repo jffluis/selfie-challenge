@@ -17,7 +17,9 @@
         android:foreground="?android:attr/selectableItemBackground"
         app:cardElevation="2dp"
         app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="true">
+        app:cardUseCompatPadding="true"
+        android:layout_margin="5dp"
+        >
 
 
         <android.support.constraint.ConstraintLayout
