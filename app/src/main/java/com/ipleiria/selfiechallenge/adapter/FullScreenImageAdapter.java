@@ -60,7 +60,6 @@ public class FullScreenImageAdapter extends PagerAdapter {
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
         final ProgressBar progressBar = (ProgressBar) viewLayout.findViewById(R.id.progress);
 
-
         Glide
                 .with(_activity)
                 .load(_imagePaths.get(position))

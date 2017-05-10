@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -111,6 +112,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo1.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 0;
 
@@ -136,12 +139,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo2.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 1;
 
                     ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
-                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             });
@@ -160,12 +165,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo3.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 2;
 
                     ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
-                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             });
@@ -182,12 +189,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo4.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 3;
 
                     ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
-                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             });
@@ -206,12 +215,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo5.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 4;
 
                     ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
-                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             });
@@ -230,12 +241,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
 
+                    holder.photo6.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.img_anim));
+
                     Instance.getInstance().challengeToSee = challenge;
                     Instance.getInstance().selectedPhotoPos = 5;
 
                     ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
-                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(position)).addToBackStack(null).commit();
+                            .replace(R.id.contentContainer, PhotoViewerFragment.newInstance(0)).addToBackStack(null).commit();
 
                 }
             });

@@ -74,7 +74,6 @@ public class PhotoViewerFragment extends Fragment {
         viewPager.setAdapter(adapter);
         // displaying selected image first
         viewPager.setCurrentItem(Instance.getInstance().selectedPhotoPos);
-
         return view;
     }
 
