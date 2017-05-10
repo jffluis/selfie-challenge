@@ -8,8 +8,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.ipleiria.selfiechallenge.Instance;
@@ -17,6 +20,8 @@ import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.model.User;
 import com.ipleiria.selfiechallenge.utils.Firebase;
+
+import static android.R.attr.category;
 
 
 /**
@@ -68,15 +73,29 @@ public class CreateChallengeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_create_challenge, container, false);
         Button btn_create = (Button) view.findViewById(R.id.btn_create_challenge);
-        final EditText nameChallenge = (EditText) view.findViewById(R.id.txt_challenge_name);
+        final String[] nameChallenge = {""};
+        final Spinner spinner = (Spinner) view.findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getContext(), "cliquei no " + adapterView.getSelectedItem()
+                        , Toast.LENGTH_SHORT).show();
+                nameChallenge[0] = "Take a selfie " + adapterView.getSelectedItem();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         final EditText description = (EditText) view.findViewById(R.id.txt_challenge_description);
 
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(nameChallenge.getText().toString() != null){
+                if(nameChallenge[0].toString() != null){
 
-                    Challenge newChallenge = new Challenge(nameChallenge.getText().toString(), description.getText().toString(), Instance.getInstance().getCurrentUser());//Instance.getInstance().getCurrentUser());
+                    Challenge newChallenge = new Challenge(nameChallenge[0], description.getText().toString(), Instance.getInstance().getCurrentUser());//Instance.getInstance().getCurrentUser());
                     Instance.getInstance().addChallenge(newChallenge);
 
                     String id = Firebase.dbUserChallenges.push().getKey();

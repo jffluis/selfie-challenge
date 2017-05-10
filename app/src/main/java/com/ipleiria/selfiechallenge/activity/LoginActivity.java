@@ -25,6 +25,7 @@ import com.facebook.login.widget.LoginButton;
 
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.model.User;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -149,8 +150,7 @@ public class LoginActivity extends AppCompatActivity {
     private void nextActivity(Profile profile){
         if(profile != null){
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            Instance.getInstance().setFullName(profile.getFirstName() + " " + profile.getLastName());
-            Instance.getInstance().setUrlPhoto(profile.getProfilePictureUri(200,200).toString());
+            Instance.getInstance().setCurrentUser(new User(profile.getId(), profile.getFirstName() + " " + profile.getLastName(), 0));
             startActivity(main);
             finish();
         }

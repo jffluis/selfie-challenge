@@ -204,6 +204,7 @@ public class ChooseChallengeFragment extends Fragment {
             String id = ds.getKey();
             String descriptionChallengeFirebase = ds.child("description").getValue(String.class);
             String userName = ds.child("user").child("name").getValue(String.class);
+            String userId = ds.child("user").child("id").getValue(String.class);
             Integer points = ds.child("user").child("points").getValue(Integer.class);
 
             for(DataSnapshot photo: ds.child("photos").getChildren()){
@@ -211,7 +212,7 @@ public class ChooseChallengeFragment extends Fragment {
                 photosUrl.add(photoURL);
             }
 
-            User user =  new User(userName, points);
+            User user =  new User(userId, userName, points);
             Challenge challenge = new Challenge(id, nameChallengeFirebase, descriptionChallengeFirebase,user, photosUrl);
             Instance.getInstance().getChallengesList().add(challenge);
             rvAdapter.notifyDataSetChanged();

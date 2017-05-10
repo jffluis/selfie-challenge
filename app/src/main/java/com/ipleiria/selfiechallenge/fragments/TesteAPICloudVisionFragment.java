@@ -138,9 +138,6 @@ public class TesteAPICloudVisionFragment extends Fragment {
         return view;
     }
 
-
-
-
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(getActivity(), GALLERY_PERMISSIONS_REQUEST, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Intent intent = new Intent();
@@ -169,7 +166,6 @@ public class TesteAPICloudVisionFragment extends Fragment {
         File dir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return new File(dir, FILE_NAME);
     }
-
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -296,6 +292,11 @@ public class TesteAPICloudVisionFragment extends Fragment {
                             logoDetection.setType("LOGO_DETECTION");
                             logoDetection.setMaxResults(10);
                             add(logoDetection);
+
+                            Feature faceDetection = new Feature();
+                            faceDetection.setType("FACE_DETECTION");
+                            faceDetection.setMaxResults(10);
+                            add(faceDetection);
                         }});
 
                         // Add the list of one thing to the request

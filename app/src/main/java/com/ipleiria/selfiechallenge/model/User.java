@@ -11,6 +11,7 @@ public class User {
     private String name;
     private ImageView photo;
     private int points;
+    private String id;
 
 
     public User(String name, ImageView photo, int points) {
@@ -19,9 +20,18 @@ public class User {
         this.points = points;
     }
 
-    public User(String name, int points) {
+    public User(String id, String name, int points) {
+        this.id = id;
         this.name = name;
         this.points = points;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

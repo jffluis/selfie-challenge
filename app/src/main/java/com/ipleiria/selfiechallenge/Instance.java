@@ -31,15 +31,6 @@ public class Instance {
 
     private String urlPhoto;
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-        if(currentUser == null) {
-            currentUser = new User(this.getFullName(), 1000);
-        }else{
-            currentUser.setName(fullName);
-        }
-    }
-
     public void setUrlPhoto(String urlPhoto) {
         this.urlPhoto = urlPhoto;
     }
@@ -57,6 +48,9 @@ public class Instance {
         return currentUser;
     }
 
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
     public void addChallenge(Challenge challenge){
         challengesList.add(challenge);
     }

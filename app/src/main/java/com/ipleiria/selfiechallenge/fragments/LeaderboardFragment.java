@@ -78,16 +78,14 @@ public class LeaderboardFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_leaderboard);
         ArrayList<User> lista = new ArrayList<>();
 
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
-        lista.add(new User("Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+        lista.add(new User("asd", "Nome1",1001));
+
 
         rvAdapter = new RVUserAdapter(lista);
 
