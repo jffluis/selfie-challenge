@@ -12,12 +12,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.ipleiria.selfiechallenge.R;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 
 import java.util.ArrayList;
 
@@ -47,7 +50,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
         ImageView imgDisplay;
         Button btnClose;
 
@@ -57,6 +60,21 @@ public class FullScreenImageAdapter extends PagerAdapter {
                 false);
 
         imgDisplay = (ImageView) viewLayout.findViewById(R.id.imgDisplay);
+        LikeButton likeButton = (LikeButton) viewLayout.findViewById(R.id.like_button);
+
+        likeButton.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(LikeButton likeButton) {
+                Toast.makeText(_activity, "Liked" + _imagePaths.get(position), Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void unLiked(LikeButton likeButton) {
+                Toast.makeText(_activity, "Disliked"+ _imagePaths.get(position), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
         final ProgressBar progressBar = (ProgressBar) viewLayout.findViewById(R.id.progress);
 
