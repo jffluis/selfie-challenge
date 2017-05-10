@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main__drawer);
 
 
-        showLocationDialog();
+        //showDialog();
 
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .replace(R.id.contentContainer, StartFragment.newInstance(0)).addToBackStack(null).commit();
@@ -495,7 +495,7 @@ public class MainActivity extends AppCompatActivity
 
         return message;
     }
-    private void showLocationDialog() {
+    private void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Error");
         builder.setMessage("The picture is not related to the challenge");
