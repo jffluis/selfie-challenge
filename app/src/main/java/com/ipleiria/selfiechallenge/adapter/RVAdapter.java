@@ -104,7 +104,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
                     .with(activity)
                     .load(challenge.getPhotos().get(0))
                     .crossFade()
-                    .placeholder(android.R.drawable.progress_indeterminate_horizontal)
                     .animate(R.anim.animacao)
                     .into(holder.photo1);
 
