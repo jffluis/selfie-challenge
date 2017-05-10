@@ -1,6 +1,7 @@
 package com.ipleiria.selfiechallenge.activity;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -87,6 +89,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__drawer);
+
+
+        showLocationDialog();
 
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .replace(R.id.contentContainer, StartFragment.newInstance(0)).addToBackStack(null).commit();
@@ -489,6 +494,26 @@ public class MainActivity extends AppCompatActivity
         }
 
         return message;
+    }
+    private void showLocationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Error");
+        builder.setMessage("The picture is not related to the challenge");
+        builder.setIcon(R.mipmap.ic_launcher);
+
+        String positiveText = "Try again";
+        builder.setPositiveButton(positiveText,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // positive button logic
+                    }
+                });
+
+
+        AlertDialog dialog = builder.create();
+        // display dialog
+        dialog.show();
     }
 
 
