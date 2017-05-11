@@ -542,7 +542,7 @@ public class MainActivity extends AppCompatActivity
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 Random random = new Random();
                 DatabaseReference objRef = Firebase.dbUserChallenges.child(Instance.getInstance().getCurrentChallenge().getId());
-                DatabaseReference photosRef = objRef.child("photos").child(String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(300)));
+                DatabaseReference photosRef = objRef.child("photos").child(Instance.getInstance().getCurrentUser().getId());
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 photosRef.setValue(String.valueOf(downloadUrl));
                 progressDialog.dismiss();

@@ -8,11 +8,12 @@ public class POI {
 
     private String name;
     private String address;
+    private String urlPhoto;
 
-
-    public POI(String name, String address) {
+    public POI(String name, String address, String urlPhoto) {
         this.name = name;
         this.address = address;
+        this.urlPhoto = urlPhoto;
     }
 
     public String getName() {
@@ -29,5 +30,13 @@ public class POI {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getUrlPhoto() {
+        return urlPhoto;
+    }
+
+    public void setUrlPhoto(String urlPhoto) {
+        this.urlPhoto = urlPhoto;
     }
 }

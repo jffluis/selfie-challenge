@@ -151,7 +151,7 @@
                 android:layout_below="@+id/name"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_toEndOf="@+id/img"
+                android:layout_toEndOf="@+id/img_poi"
                 android:maxHeight="20dp"
                 android:text="address"
                 app:layout_constraintLeft_toLeftOf="parent"

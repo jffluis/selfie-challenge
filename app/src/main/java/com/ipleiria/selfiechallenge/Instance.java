@@ -1,6 +1,7 @@
 package com.ipleiria.selfiechallenge;
 
 import com.ipleiria.selfiechallenge.model.Challenge;
+import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.model.User;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Instance {
     private static final Instance ourInstance = new Instance();
     private User currentUser;
     private ArrayList<Challenge> challengesList;
+    private ArrayList<POI> POIList;
     public Challenge challengeToSee;
     public int selectedPhotoPos;
 
@@ -25,6 +27,7 @@ public class Instance {
 
     private Instance() {
         challengesList = new ArrayList<>();
+        POIList = new ArrayList<>();
     }
 
     private String fullName;
@@ -69,5 +72,13 @@ public class Instance {
 
     public void setCurrentChallenge(Challenge currentChallenge) {
         this.currentChallenge = currentChallenge;
+    }
+
+    public void addPOI(POI poi) {
+        POIList.add(poi);
+    }
+
+    public ArrayList<POI> getPOIList() {
+        return POIList;
     }
 }
