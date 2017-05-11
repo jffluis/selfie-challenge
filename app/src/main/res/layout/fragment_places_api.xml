@@ -18,7 +18,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="488dp"
         android:orientation="vertical"
         android:weightSum="1"
         android:layout_margin="8dp">
@@ -52,6 +52,7 @@
             android:id="@+id/rv_poi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             />
 
     </LinearLayout>

@@ -37,9 +37,8 @@
 
             <TextView
                 android:id="@+id/address_poi"
-                android:layout_width="220dp"
+                android:layout_width="150dp"
                 android:layout_height="20dp"
-                android:layout_alignParentEnd="true"
                 android:layout_alignStart="@+id/name_poi"
                 android:layout_below="@+id/name_poi"
                 android:layout_marginTop="13dp"
@@ -48,14 +47,22 @@
 
             <TextView
                 android:id="@+id/name_poi"
-                android:layout_width="220dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="28dp"
+                android:layout_toEndOf="@+id/img_poi"
                 android:text="City"
                 android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/img_poi"
-                android:layout_marginStart="28dp" />
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                app:srcCompat="@drawable/btn_check_buttonless_on" />
 
         </RelativeLayout>
 

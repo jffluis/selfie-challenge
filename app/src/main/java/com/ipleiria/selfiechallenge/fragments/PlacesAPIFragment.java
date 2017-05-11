@@ -49,8 +49,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -346,7 +349,7 @@ public class PlacesAPIFragment extends Fragment implements
     private void getPlaces(String cityName) throws MalformedURLException {
         String cityParsed = cityName.replace(" ", "+");
         final String url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
-                "json?query="+ cityParsed + "+point+of+interest" + "&key=" + Constants.API_KEY;
+                "json?query="+ cityParsed + "" + "&key=" + Constants.API_KEY;
 
         new Thread(new Runnable() {
             @Override
@@ -381,10 +384,15 @@ public class PlacesAPIFragment extends Fragment implements
 
 
     private void parseResponse(String response) throws JSONException {
-        JSONObject jObject = new JSONObject(response);
-        JSONArray jArray = jObject.getJSONArray("results");
 
-        for (int i=0; i < jArray.length(); i++)
+        Instance.getInstance().getPOIList().clear();
+        JSONObject jObject = new JSONObject(response);
+        JSONArray jArrayStock = jObject.getJSONArray("results");
+
+        JSONArray jArray = shuffleJsonArray(jArrayStock);
+
+
+        for (int i=0; i < 3; i++)
         {
             try {
                 JSONObject oneObject = jArray.getJSONObject(i);
@@ -401,6 +409,7 @@ public class PlacesAPIFragment extends Fragment implements
                 }
 
                 Instance.getInstance().addPOI(new POI(name, address, photoURL));
+
             } catch (JSONException e) {
                 e.printStackTrace();
                 // quando da porcaria
@@ -417,5 +426,20 @@ public class PlacesAPIFragment extends Fragment implements
         });
 
     }
+
+    public static JSONArray shuffleJsonArray (JSONArray array) throws JSONException {
+        // Implementing Fisher–Yates shuffle
+        Random rnd = new Random();
+        for (int i = array.length() - 1; i >= 0; i--)
+        {
+            int j = rnd.nextInt(i + 1);
+            // Simple swap
+            Object object = array.get(j);
+            array.put(j, array.get(i));
+            array.put(i, object);
+        }
+        return array;
+    }
+
 
 }
