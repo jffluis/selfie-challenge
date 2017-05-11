@@ -17,12 +17,19 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.utils.Constants;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +37,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +69,6 @@ public class PlacesAPIFragment extends Fragment implements
     private LocationManager locationManager;
     private String provider;
     private static View view;
-
 
     public PlacesAPIFragment() {
         // Required empty public constructor
@@ -121,21 +129,29 @@ public class PlacesAPIFragment extends Fragment implements
             }
 
             Log.i(TAG, "Place: " + locLat);
-            try {
-                getPlaces(addresses.get(0).getLocality(), 10000);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+
         }
 
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                .build();
+        autocompleteFragment.setFilter(typeFilter);
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName());
+
+                try {
+                    getPlaces(place.getName().toString());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+
             }
 
             @Override
@@ -217,17 +233,15 @@ public class PlacesAPIFragment extends Fragment implements
         }
     }
 
-    private void getPlaces(String cityName, int radius) throws MalformedURLException {
-        String API_KEY="AIzaSyDiUsDsLLNyzpQYceHA-ZsrZ2g0VXpNw88";
-
+    private void getPlaces(String cityName) throws MalformedURLException {
+        String cityParsed = cityName.replace(" ", "+");
         final String url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
-                "json?query="+ cityName + "+point+of+interest" + "&radius=" + radius + "&key=" + API_KEY;
+                "json?query="+ cityParsed + "+point+of+interest&language=en" + "&key=" + Constants.API_KEY;
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-                StringBuffer sb = null;
+                StringBuffer sb;
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
@@ -239,25 +253,39 @@ public class PlacesAPIFragment extends Fragment implements
                     sb = new StringBuffer("");
                     while (data != -1) {
                         sb.append((char) data);
-                        //char current = (char) data;
                         data = isw.read();
-                        // System.out.print(current);
                     }
+                    parseJSON(sb.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     if (urlConnection != null) {
                         urlConnection.disconnect();
+
                     }
                 }
-
-
-
-                Log.i(TAG, "RESPONSE: " + sb.toString());
-
             }
         }).start();
 
+    }
+
+
+    private void parseJSON(String jString) throws JSONException {
+        ArrayList<String> listPOI = new ArrayList<>();
+        JSONObject jObject = new JSONObject(jString);
+        JSONArray jArray = jObject.getJSONArray("results");
+
+        for (int i=0; i < jArray.length(); i++)
+        {
+            try {
+                JSONObject oneObject = jArray.getJSONObject(i);
+                String name = oneObject.getString("name");
+                listPOI.add(name);
+            } catch (JSONException e) {
+                // quando da porcaria
+            }
+        }
+        Log.d(TAG, "LISTA POI: " + listPOI);
     }
 
 }
