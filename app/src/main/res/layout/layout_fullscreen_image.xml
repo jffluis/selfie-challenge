@@ -36,7 +36,7 @@
         app:dots_primary_color="@color/colorAccent"
         app:dots_secondary_color="@color/colorPrimary"
         app:icon_size="50dp"
-        app:icon_type="Heart"
+        app:icon_type="Thumb"
         android:id="@+id/like_button"
         />
 

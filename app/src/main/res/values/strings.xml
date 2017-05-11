@@ -34,15 +34,15 @@
     ]]>
     </string>
 
-        <string-array name="spinner_array">
-            <item>at the beach</item>
-            <item>with friends</item>
-            <item>smilling</item>
-            <item>happy</item>
-            <item>angry</item>
-            <item>sad</item>
-            <item>with sunglasses</item>
-        </string-array>
+    <string-array name="spinner_array">
+        <item>at the beach</item>
+        <item>with friends</item>
+        <item>smilling</item>
+        <item>happy</item>
+        <item>angry</item>
+        <item>sad</item>
+        <item>with sunglasses</item>
+    </string-array>
 
 
 </resources>

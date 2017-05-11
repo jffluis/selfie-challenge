@@ -53,6 +53,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
+import com.ipleiria.selfiechallenge.fragments.PlacesAPIFragment;
 import com.ipleiria.selfiechallenge.utils.Firebase;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
-
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
@@ -182,13 +182,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             fragment = ChooseChallengeFragment.newInstance(0);
         } else if (id == R.id.nav_gallery) {
-            fragment = TesteAPICloudVisionFragment.newInstance(1);
+            fragment = TesteAPICloudVisionFragment.newInstance(0);
         } else if (id == R.id.nav_slideshow) {
-            fragment = LeaderboardFragment.newInstance(2);
-
-        } /*else if (id == R.id.nav_manage) {
-
-        }*/
+            fragment = LeaderboardFragment.newInstance(0);
+        }else if (id == R.id.nav_manage) {
+            fragment = PlacesAPIFragment.newInstance(0);
+        }
 
 
         getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
