@@ -1,6 +1,9 @@
 package com.ipleiria.selfiechallenge.adapter;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.POI;
 
@@ -51,16 +55,19 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
 
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         POI poi = poiList.get(position);
         holder.name.setText(poi.getName());
         holder.address.setText(poi.getAddress());
-        Glide
-                .with(activity)
-                .load(poi.getUrlPhoto())
-                .crossFade()
-                .animate(R.anim.animacao)
-                .into(holder.photo);
+        Glide.with(activity).load(poi.getUrlPhoto()).asBitmap().centerCrop().into(new BitmapImageViewTarget(holder.photo) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable =
+                        RoundedBitmapDrawableFactory.create(activity.getResources(), resource);
+                circularBitmapDrawable.setCircular(true);
+                holder.photo.setImageDrawable(circularBitmapDrawable);
+            }
+        });
     }
 
     @Override

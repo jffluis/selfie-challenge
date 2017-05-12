@@ -13,6 +13,7 @@ public final class Firebase {
     // Firebase
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
     public static DatabaseReference dbUserChallenges = database.getReference("userChallenges");
+    public static DatabaseReference dbUsers = database.getReference("users");
     public static FirebaseStorage storage = FirebaseStorage.getInstance();
     public static String StorageURL = "gs://selfie-challenge-f7b92.appspot.com";
 

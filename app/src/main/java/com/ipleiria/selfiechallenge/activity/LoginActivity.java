@@ -1,5 +1,6 @@
 package com.ipleiria.selfiechallenge.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -23,9 +24,11 @@ import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import com.google.firebase.database.DatabaseReference;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.User;
+import com.ipleiria.selfiechallenge.utils.Firebase;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -148,10 +151,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void nextActivity(Profile profile){
+
         if(profile != null){
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            Instance.getInstance().setCurrentUser(new User(profile.getId(), profile.getFirstName() + " " + profile.getLastName(), 0));
+            User user = new User(profile.getId(), profile.getFirstName() + " " + profile.getLastName(), String.valueOf(profile.getProfilePictureUri(400,400)), 0);
+            Instance.getInstance().setCurrentUser(user);
+            DatabaseReference newPostRef = Firebase.dbUsers.child(user.getId());
+            newPostRef.setValue(user);
             startActivity(main);
+
             finish();
         }
     }

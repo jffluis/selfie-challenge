@@ -65,12 +65,9 @@ public class PhotoViewerFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_photo_viewer, container, false);
-
-        com.like.LikeButton likeButton = (com.like.LikeButton) view.findViewById(R.id.like_button);
-
         viewPager = (ViewPager) view.findViewById(R.id.pager);
         adapter = new FullScreenImageAdapter(getActivity(),
-                Instance.getInstance().challengeToSee.getPhotos());
+                Instance.getInstance().challengeToSee);
         viewPager.setAdapter(adapter);
         // displaying selected image first
         viewPager.setCurrentItem(Instance.getInstance().selectedPhotoPos);

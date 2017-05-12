@@ -18,7 +18,9 @@ public class Instance {
     private User currentUser;
     private ArrayList<Challenge> challengesList;
     private ArrayList<POI> POIList;
+    private ArrayList<User> usersList;
     public Challenge challengeToSee;
+
     public int selectedPhotoPos;
 
     public static Instance getInstance() {
@@ -28,6 +30,7 @@ public class Instance {
     private Instance() {
         challengesList = new ArrayList<>();
         POIList = new ArrayList<>();
+        usersList = new ArrayList<>();
     }
 
     private String fullName;
@@ -80,5 +83,13 @@ public class Instance {
 
     public ArrayList<POI> getPOIList() {
         return POIList;
+    }
+
+    public ArrayList<User> getUsersList() {
+        return usersList;
+    }
+
+    public void setUsersList(ArrayList<User> usersList) {
+        this.usersList = usersList;
     }
 }

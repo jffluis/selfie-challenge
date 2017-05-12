@@ -1,6 +1,6 @@
 package com.ipleiria.selfiechallenge.fragments;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,13 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
-import com.ipleiria.selfiechallenge.adapter.RVAdapter;
 import com.ipleiria.selfiechallenge.adapter.RVUserAdapter;
-import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.model.User;
-
-import java.util.ArrayList;
+import com.ipleiria.selfiechallenge.utils.Firebase;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -43,6 +44,7 @@ public class LeaderboardFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private ProgressDialog progressDialog;
 
     public LeaderboardFragment() {
         // Required empty public constructor
@@ -76,18 +78,27 @@ public class LeaderboardFragment extends Fragment {
         toolbar.setTitle("Leaderboard");
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_leaderboard);
-        ArrayList<User> lista = new ArrayList<>();
 
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
-        lista.add(new User("asd", "Nome1",1001));
+        rvAdapter = new RVUserAdapter(Instance.getInstance().getUsersList(), getActivity());
 
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Fetching leaderboard..");
+        progressDialog.show();
+        Firebase.dbUsers.addValueEventListener(new ValueEventListener() {
 
-        rvAdapter = new RVUserAdapter(lista);
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Instance.getInstance().getChallengesList().clear();
+                getAllUsers(dataSnapshot);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -107,5 +118,19 @@ public class LeaderboardFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void getAllUsers(DataSnapshot dataSnapshot){
+        Instance.getInstance().getUsersList().clear();
+        for (DataSnapshot ds: dataSnapshot.getChildren()){
+            String userName = ds.child("name").getValue(String.class);
+            String userId = ds.child("id").getValue(String.class);
+            Integer points = ds.child("points").getValue(Integer.class);
+            String photoURL = ds.child("photoURL").getValue(String.class);
+            User user =  new User(userId, userName, photoURL, points);
+            Instance.getInstance().getUsersList().add(user);
+        }
+        rvAdapter.notifyDataSetChanged();
+        progressDialog.dismiss();
     }
 }

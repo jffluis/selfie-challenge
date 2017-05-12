@@ -19,17 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -45,8 +38,6 @@ import com.ipleiria.selfiechallenge.utils.Firebase;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -134,7 +125,7 @@ public class ChooseChallengeFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Instance.getInstance().getChallengesList().clear();
-                getAllTask(dataSnapshot);
+                getAllChallenges(dataSnapshot);
 
             }
 
@@ -196,7 +187,7 @@ public class ChooseChallengeFragment extends Fragment {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private void getAllTask(DataSnapshot dataSnapshot){
+    private void getAllChallenges(DataSnapshot dataSnapshot){
 
         for (DataSnapshot ds: dataSnapshot.getChildren()){
             ArrayList<String> photosUrl = new ArrayList<>();
@@ -205,6 +196,7 @@ public class ChooseChallengeFragment extends Fragment {
             String descriptionChallengeFirebase = ds.child("description").getValue(String.class);
             String userName = ds.child("user").child("name").getValue(String.class);
             String userId = ds.child("user").child("id").getValue(String.class);
+            String userphoto = ds.child("user").child("photoURL").getValue(String.class);
             Integer points = ds.child("user").child("points").getValue(Integer.class);
 
             for(DataSnapshot photo: ds.child("photos").getChildren()){
@@ -212,13 +204,13 @@ public class ChooseChallengeFragment extends Fragment {
                 photosUrl.add(photoURL);
             }
 
-            User user =  new User(userId, userName, points);
+            User user =  new User(userId, userName, userphoto, points);
             Challenge challenge = new Challenge(id, nameChallengeFirebase, descriptionChallengeFirebase,user, photosUrl);
             Instance.getInstance().getChallengesList().add(challenge);
-            rvAdapter.notifyDataSetChanged();
-            progressDialog.dismiss();
-        }
 
+        }
+        rvAdapter.notifyDataSetChanged();
+        progressDialog.dismiss();
     }
 
 

@@ -15,6 +15,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.Challenge;
@@ -97,10 +102,28 @@ public class CreateChallengeFragment extends Fragment {
 
                     Challenge newChallenge = new Challenge(nameChallenge[0], description.getText().toString(), Instance.getInstance().getCurrentUser());//Instance.getInstance().getCurrentUser());
                     Instance.getInstance().addChallenge(newChallenge);
-
                     String id = Firebase.dbUserChallenges.push().getKey();
-
                     Firebase.dbUserChallenges.child(id).setValue(newChallenge);
+
+
+                   DatabaseReference pointsRef = Firebase.dbUsers.child(Instance.getInstance().getCurrentUser().getId()+"/points");
+                    pointsRef.runTransaction(new Transaction.Handler() {
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            Integer currentValue = mutableData.getValue(Integer.class);
+                            if (currentValue == null) {
+                                mutableData.setValue(0);
+                            } else {
+                                mutableData.setValue(currentValue + 10);
+                            }
+                            return Transaction.success(mutableData);
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                            System.out.println("Transaction completed");
+                        }
+                    });
 
                     Toast.makeText(getActivity(), "Added with success", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,

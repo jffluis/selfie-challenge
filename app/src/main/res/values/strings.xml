@@ -33,6 +33,7 @@
         Website: %5$s
     ]]>
     </string>
+    <string name="isFirstTime">true</string>
 
     <string-array name="spinner_array">
         <item>at the beach</item>

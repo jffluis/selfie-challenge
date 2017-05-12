@@ -101,6 +101,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             public void onClick(View view) {
                 Instance.getInstance().setCurrentChallenge(challenge);
                 PhotoUtil.startCamera(activity);
+
             }
         });
 

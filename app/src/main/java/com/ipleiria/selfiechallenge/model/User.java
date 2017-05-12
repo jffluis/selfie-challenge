@@ -9,20 +9,21 @@ import android.widget.ImageView;
 public class User {
 
     private String name;
-    private ImageView photo;
+    private String photoURL;
     private int points;
     private String id;
 
 
-    public User(String name, ImageView photo, int points) {
+    public User(String name, String photoURL, int points) {
         this.name = name;
-        this.photo = photo;
+        this.photoURL = photoURL;
         this.points = points;
     }
 
-    public User(String id, String name, int points) {
+    public User(String id, String name, String photoURL, int points) {
         this.id = id;
         this.name = name;
+        this.photoURL = photoURL;
         this.points = points;
     }
 
@@ -42,13 +43,6 @@ public class User {
         this.name = name;
     }
 
-    public ImageView getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(ImageView photo) {
-        this.photo = photo;
-    }
 
     public int getPoints() {
         return points;
@@ -58,4 +52,11 @@ public class User {
         this.points = points;
     }
 
+    public String getPhotoURL() {
+        return photoURL;
+    }
+
+    public void setPhotoURL(String photoURL) {
+        this.photoURL = photoURL;
+    }
 }

@@ -130,7 +130,6 @@ public class PlacesAPIFragment extends Fragment implements
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setTitle("Smart Challenge");
-
         getLocation();
 
         textViewgenerate = (TextView) view.findViewById(R.id.textView3);
@@ -212,30 +211,30 @@ public class PlacesAPIFragment extends Fragment implements
     }
 
     private void getLocation() {
-        checkLocationPermission();
-        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1,1, this);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1,1, this);
-        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (location != null){
-            double longitude = location.getLongitude();
-            double latitude = location.getLatitude();
-            String locLat = String.valueOf(latitude)+","+String.valueOf(longitude);
+        if(checkLocationPermission()) {
+            locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, this);
+            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null) {
+                double longitude = location.getLongitude();
+                double latitude = location.getLatitude();
+                String locLat = String.valueOf(latitude) + "," + String.valueOf(longitude);
 
-            Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-            List<Address> addresses = null;
-            try {
-                addresses = gcd.getFromLocation(latitude, longitude, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
+                Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
+                List<Address> addresses = null;
+                try {
+                    addresses = gcd.getFromLocation(latitude, longitude, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (addresses.size() > 0) {
+                    System.out.println(addresses.get(0).getLocality());
+                }
+
+                Log.i(TAG, "Place: " + locLat);
+
             }
-            if (addresses.size() > 0)
-            {
-                System.out.println(addresses.get(0).getLocality());
-            }
-
-            Log.i(TAG, "Place: " + locLat);
-
         }
     }
 
@@ -349,7 +348,7 @@ public class PlacesAPIFragment extends Fragment implements
     private void getPlaces(String cityName) throws MalformedURLException {
         String cityParsed = cityName.replace(" ", "+");
         final String url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
-                "json?query="+ cityParsed + "" + "&key=" + Constants.API_KEY;
+                "json?query="+ cityParsed + "+point+of+interest" + "&key=" + Constants.API_KEY;
 
         new Thread(new Runnable() {
             @Override
