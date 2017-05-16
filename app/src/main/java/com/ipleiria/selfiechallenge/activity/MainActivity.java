@@ -23,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.awareness.fence.AwarenessFence;
+import com.google.android.gms.awareness.fence.DetectedActivityFence;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -105,6 +107,14 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        // Create the primitive fences.
+        AwarenessFence walkingFence = DetectedActivityFence.during(DetectedActivityFence.WALKING);
+
+        System.out.println("walkingFence");
+        System.out.println(walkingFence);
+
 
         /*new AsyncTask<Void,String,Bitmap>(){
 
