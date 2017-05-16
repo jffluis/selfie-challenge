@@ -2,7 +2,7 @@ package com.ipleiria.selfiechallenge.activity;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -22,15 +21,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.googleapis.util.Utils;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -83,6 +79,7 @@ public class MainActivity extends AppCompatActivity
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
     private ProgressDialog progressDialog;
+    private boolean isAccepted = false;
 
 
     @Override
@@ -229,8 +226,9 @@ public class MainActivity extends AppCompatActivity
                                 1200);
 
                 //Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
+                callCloudVision(bitmap);
 
-                uploadFile(bitmap);
+                //System.out.println(Instance.getInstance().getCurrentChallenge().getName());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -268,7 +266,6 @@ public class MainActivity extends AppCompatActivity
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
                                 1200);
 
-                callCloudVision(bitmap);
 
 
             } catch (IOException e) {
@@ -281,13 +278,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void callCloudVision(final Bitmap bitmap) throws IOException {
+    private boolean callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Analysing Selfie..");
+        progressDialog.show();
 
         // Do the real work in an async task, because we need to use the network anyway
-        new AsyncTask<Object, Void, String>() {
+        new AsyncTask<Object, Void, Boolean>() {
             @Override
-            protected String doInBackground(Object... params) {
+            protected Boolean doInBackground(Object... params) {
                 try {
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
@@ -338,18 +338,23 @@ public class MainActivity extends AppCompatActivity
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature labelDetection = new Feature();
                             labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(10);
+                            labelDetection.setMaxResults(5);
                             add(labelDetection);
 
                             Feature webDetection = new Feature();
                             webDetection.setType("WEB_DETECTION");
-                            webDetection.setMaxResults(10);
+                            webDetection.setMaxResults(5);
                             add(webDetection);
 
                             Feature logoDetection = new Feature();
                             logoDetection.setType("LOGO_DETECTION");
-                            logoDetection.setMaxResults(10);
+                            logoDetection.setMaxResults(5);
                             add(logoDetection);
+
+                            Feature faceDetection = new Feature();
+                            faceDetection.setType("FACE_DETECTION");
+                            faceDetection.setMaxResults(5);
+                            add(faceDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -371,13 +376,22 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, "failed to make PhotoUtil request because of other IOException " +
                             e.getMessage());
                 }
-                return "Cloud Vision PhotoUtil request failed. Check logs for details.";
+                return false;
             }
 
-            protected void onPostExecute(String result) {
-                //mImageDetails.setText(result);
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                isAccepted = aBoolean;
+                if(isAccepted){
+                    uploadFileToFirebase(bitmap);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Not valid :(", Toast.LENGTH_SHORT).show();
+                }
             }
+
         }.execute();
+
+        return false;
     }
 
     public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
@@ -400,7 +414,10 @@ public class MainActivity extends AppCompatActivity
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private String convertResponseToString(BatchAnnotateImagesResponse response) {
+    private boolean convertResponseToString(BatchAnnotateImagesResponse response) {
+
+        List<String> entireResponse = new ArrayList<String>();
+
         String message = "";
         List<EntityAnnotation> annotations;
         AnnotateImageResponse annotateImageResponse = response.getResponses().get(0);
@@ -418,6 +435,8 @@ public class MainActivity extends AppCompatActivity
                         webEntitiesList) {
                     message += String.format(Locale.US, "%s - score:%s id:%s", webEntity.get("description"), webEntity.get("score"), webEntity.get("entityId"));
                     message += "\n";
+
+                    entireResponse.add((String) webEntity.get("description"));
                 }
 
             }
@@ -429,6 +448,8 @@ public class MainActivity extends AppCompatActivity
             for (EntityAnnotation annotation : annotations) {
                 message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
                 message += "\n";
+
+                entireResponse.add(annotation.getDescription());
             }
         } else {
             message += "nothing";
@@ -440,6 +461,8 @@ public class MainActivity extends AppCompatActivity
             for (EntityAnnotation annotation : annotations) {
                 message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
                 message += "\n";
+
+                entireResponse.add(annotation.getDescription());
             }
         } else {
             message += "nothing";
@@ -451,6 +474,8 @@ public class MainActivity extends AppCompatActivity
             for (EntityAnnotation annotation : annotations) {
                 message += String.format(Locale.US, "%.3f: %s - %s", annotation.getScore(), annotation.getDescription(), annotation.getLocations());
                 message += "\n";
+
+                entireResponse.add(annotation.getDescription());
             }
         } else {
             message += "nothing";
@@ -462,6 +487,8 @@ public class MainActivity extends AppCompatActivity
             for (EntityAnnotation annotation : annotations) {
                 message += String.format(Locale.US, "%.3f: %s", annotation.getScore(), annotation.getDescription());
                 message += "\n";
+
+                entireResponse.add(annotation.getDescription());
             }
         } else {
             message += "nothing";
@@ -492,7 +519,23 @@ public class MainActivity extends AppCompatActivity
             message += "nothing";
         }
 
-        return message;
+        String challengeName = (Instance.getInstance().getCurrentChallenge().getName());
+        String lastChallengeName = (challengeName.substring(challengeName.lastIndexOf(" ") + 1));
+
+        System.out.println("Cloud vision:  entireResponse");
+        System.out.println(entireResponse);
+
+        for(String res: entireResponse){
+            if (res != null) {
+                if (lastChallengeName.toLowerCase().contains(res.toLowerCase())) {
+                    progressDialog.dismiss();
+                    return true;
+                }
+            }
+        }
+
+        progressDialog.dismiss();
+        return false;
     }
     private void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -516,7 +559,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void uploadFile(Bitmap bitmap) {
+    private void uploadFileToFirebase(Bitmap bitmap) {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading photo..");
         progressDialog.show();
