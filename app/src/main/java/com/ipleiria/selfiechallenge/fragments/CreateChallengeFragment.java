@@ -1,10 +1,12 @@
 package com.ipleiria.selfiechallenge.fragments;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.model.User;
 import com.ipleiria.selfiechallenge.utils.Firebase;
@@ -125,11 +128,12 @@ public class CreateChallengeFragment extends Fragment {
                         }
                     });
 
-                    Toast.makeText(getActivity(), "Added with success", Toast.LENGTH_SHORT).show();
+
                     getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.fade_in,
                             R.anim.fade_out)
                             .replace(R.id.contentContainer, ChooseChallengeFragment.newInstance(0)).addToBackStack(null).commit();
 
+                    showDialog("You earned 10 points for creating a challenge!");
                 }
             }
         });
@@ -148,5 +152,25 @@ public class CreateChallengeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void showDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Congratulations!");
+        builder.setMessage(message);
+        builder.setIcon(R.drawable.ic_star);
+        String positiveText = "OK";
+        builder.setPositiveButton(positiveText,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // positive button logic
+                    }
+                });
+
+
+        AlertDialog dialog = builder.create();
+        // display dialog
+        dialog.show();
     }
 }

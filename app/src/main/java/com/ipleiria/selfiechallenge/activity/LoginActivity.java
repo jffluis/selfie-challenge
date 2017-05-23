@@ -152,15 +152,18 @@ public class LoginActivity extends AppCompatActivity {
 
     private void nextActivity(Profile profile){
 
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+
         if(profile != null){
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            User user = new User(profile.getId(), profile.getFirstName() + " " + profile.getLastName(), String.valueOf(profile.getProfilePictureUri(400,400)), 0);
+            User user = new User(profile.getId(), profile.getFirstName() + " " + profile.getLastName(), String.valueOf(profile.getProfilePictureUri(400, 400)), pref.getInt("user_score", 0) );
             Instance.getInstance().setCurrentUser(user);
             DatabaseReference newPostRef = Firebase.dbUsers.child(user.getId());
             newPostRef.setValue(user);
             startActivity(main);
 
             finish();
+
         }
     }
 

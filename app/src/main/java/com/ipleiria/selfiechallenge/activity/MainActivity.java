@@ -45,7 +45,11 @@ import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -63,7 +67,12 @@ import com.ipleiria.selfiechallenge.fragments.TesteAPICloudVisionFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -87,8 +96,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkTime();
         setContentView(R.layout.activity_main__drawer);
-
 
         //showDialog();
 
@@ -395,7 +404,7 @@ public class MainActivity extends AppCompatActivity
                 if(isAccepted){
                     uploadFileToFirebase(bitmap);
                 }else{
-                    Toast.makeText(getApplicationContext(), "Not valid :(", Toast.LENGTH_SHORT).show();
+                    showDialog("Image not valid!", true);
                 }
             }
 
@@ -547,13 +556,19 @@ public class MainActivity extends AppCompatActivity
         progressDialog.dismiss();
         return false;
     }
-    private void showDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Error");
-        builder.setMessage("The picture is not related to the challenge");
-        builder.setIcon(R.mipmap.ic_launcher);
 
-        String positiveText = "Try again";
+    private void showDialog(String message, boolean isError) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if(!isError){
+            builder.setTitle("Congratulations!");
+        }else {
+            builder.setTitle("Oh no!");
+        }
+        builder.setMessage(message);
+        builder.setIcon(R.drawable.ic_star);
+
+        String positiveText = "OK";
         builder.setPositiveButton(positiveText,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -567,7 +582,6 @@ public class MainActivity extends AppCompatActivity
         // display dialog
         dialog.show();
     }
-
 
     private void uploadFileToFirebase(Bitmap bitmap) {
         progressDialog = new ProgressDialog(this);
@@ -603,6 +617,72 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
+        DatabaseReference pointsRef = Firebase.dbUsers.child(Instance.getInstance().getCurrentUser().getId()+"/points");
+        pointsRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Integer currentValue = mutableData.getValue(Integer.class);
+                if (currentValue == null) {
+                    mutableData.setValue(0);
+                } else {
+                    mutableData.setValue(currentValue + 20);
+                }
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                System.out.println("Transaction completed");
+            }
+        });
+
+        showDialog("Your earned 20 points for participating on a challenge!", false);
+
     }
 
+
+    public void checkTime() {
+        if(isHourBetween()){
+            System.out.println("entrou??");
+            setTheme(R.style.AppThemeDark);
+        }
+    }
+
+    private boolean isHourBetween(){
+        Calendar now = Calendar.getInstance();
+
+        int dinnerHours = 20;
+        int dinnerMinutes = 0;
+
+        int closingHours = 23;
+        int closingMinutes = 59;
+
+        boolean check1;
+        if(now.get(Calendar.HOUR) < dinnerHours){
+            check1 = false;
+        } else if(now.get(Calendar.HOUR) > dinnerHours){
+            check1 = true;
+        } else {
+            check1 = now.get(Calendar.MINUTE) >= dinnerMinutes;
+        }
+
+        boolean check2;
+        if(now.get(Calendar.HOUR) < closingHours){
+            check2 = true;
+        } else if(now.get(Calendar.HOUR) > closingHours){
+            check2 = false;
+        } else {
+            check2 = now.get(Calendar.MINUTE) < closingMinutes;
+        }
+
+        return check1 && check2;
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkTime();
+    }
 }

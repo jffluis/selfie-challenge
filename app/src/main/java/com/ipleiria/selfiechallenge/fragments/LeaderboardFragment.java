@@ -1,6 +1,7 @@
 package com.ipleiria.selfiechallenge.fragments;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -129,6 +130,13 @@ public class LeaderboardFragment extends Fragment {
             String photoURL = ds.child("photoURL").getValue(String.class);
             User user =  new User(userId, userName, photoURL, points);
             Instance.getInstance().getUsersList().add(user);
+
+            if(userId.equals(Instance.getInstance().getCurrentUser().getId())){
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("user_score", points);
+                editor.apply();
+            }
         }
         rvAdapter.notifyDataSetChanged();
         progressDialog.dismiss();

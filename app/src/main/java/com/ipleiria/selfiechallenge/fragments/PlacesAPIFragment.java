@@ -384,6 +384,8 @@ public class PlacesAPIFragment extends Fragment implements
 
     private void parseResponse(String response) throws JSONException {
 
+        System.out.println(response);
+
         Instance.getInstance().getPOIList().clear();
         JSONObject jObject = new JSONObject(response);
         JSONArray jArrayStock = jObject.getJSONArray("results");
