@@ -3,6 +3,7 @@ package com.ipleiria.selfiechallenge.fragments;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,9 +11,11 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +31,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.awareness.Awareness;
+import com.google.android.gms.awareness.snapshot.LocationResult;
+import com.google.android.gms.awareness.snapshot.WeatherResult;
+import com.google.android.gms.awareness.state.Weather;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
@@ -35,6 +44,7 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
+import com.ipleiria.selfiechallenge.activity.MainActivity;
 import com.ipleiria.selfiechallenge.adapter.RVPOIAdapter;
 import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.utils.Constants;
@@ -49,11 +59,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.TimeZone;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -91,6 +103,8 @@ public class PlacesAPIFragment extends Fragment implements
     private String placeToSearch = "";
     private RVPOIAdapter rvAdapter;
     private RecyclerView rvPOI;
+    private GoogleApiClient client;
+    private Weather weather;
 
     public PlacesAPIFragment() {
         // Required empty public constructor
@@ -116,6 +130,15 @@ public class PlacesAPIFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+
+        client = new GoogleApiClient.Builder(getActivity())
+                .addApi(Awareness.API)
+                .build();
+        client.connect();
+
+
 
         if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
@@ -145,6 +168,7 @@ public class PlacesAPIFragment extends Fragment implements
         btnGenerate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
 
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setMessage("Fetching POIs..");
@@ -206,36 +230,26 @@ public class PlacesAPIFragment extends Fragment implements
             }
         });
 
+        getWeather();
+
         return view;
 
     }
 
     private void getLocation() {
-        if(checkLocationPermission()) {
-            locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, this);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, this);
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                double longitude = location.getLongitude();
-                double latitude = location.getLatitude();
-                String locLat = String.valueOf(latitude) + "," + String.valueOf(longitude);
-
-                Geocoder gcd = new Geocoder(getActivity(), Locale.getDefault());
-                List<Address> addresses = null;
-                try {
-                    addresses = gcd.getFromLocation(latitude, longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (addresses.size() > 0) {
-                    System.out.println(addresses.get(0).getLocality());
-                }
-
-                Log.i(TAG, "Place: " + locLat);
-
-            }
-        }
+        checkLocationPermission();
+        Awareness.SnapshotApi.getLocation(client)
+                .setResultCallback(new ResultCallback<LocationResult>() {
+                    @Override
+                    public void onResult(@NonNull LocationResult locationResult) {
+                        if (!locationResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Could not get location.");
+                            return;
+                        }
+                        location = locationResult.getLocation();
+                        Log.i(TAG, "Lat: " + location.getLatitude() + ", Lng: " + location.getLongitude());
+                    }
+                });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -310,8 +324,30 @@ public class PlacesAPIFragment extends Fragment implements
 
     private void getPlaces(Location location) throws MalformedURLException {
 
-        final String url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
-                "json?query=point+of+interest&location="+location.getLatitude()+","+location.getLongitude()+"&key=" + Constants.API_KEY;
+        String url_string = "";
+
+        if(isNightEarly()){
+            url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=restaurant&key=" + Constants.API_KEY;
+            showDialog("We recommended you some Restaurants!");
+        }else if (isNightLate()){
+            url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=bar&key=" + Constants.API_KEY;
+            showDialog("We recommended you some Bars!");
+
+        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_CLEAR){
+            url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=amusement_park&key=" + Constants.API_KEY;
+            showDialog("We recommended you some entertainment places");
+
+        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_RAINY || weather.getConditions()[0] == Weather.CONDITION_STORMY){
+            url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=shopping_mall&key=" + Constants.API_KEY;
+            showDialog("We recommended you some shopping  places");
+
+        }
+
+        final String final_urlString = url_string;
 
         new Thread(new Runnable() {
             @Override
@@ -320,7 +356,7 @@ public class PlacesAPIFragment extends Fragment implements
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
-                    url = new URL(url_string);
+                    url = new URL(final_urlString);
                     urlConnection = (HttpURLConnection) url.openConnection();
                     InputStream in = urlConnection.getInputStream();
                     InputStreamReader isw = new InputStreamReader(in);
@@ -440,6 +476,101 @@ public class PlacesAPIFragment extends Fragment implements
             array.put(i, object);
         }
         return array;
+    }
+
+
+    public void getWeather(){
+
+        checkLocationPermission();
+        Awareness.SnapshotApi.getWeather(client)
+                .setResultCallback(new ResultCallback<WeatherResult>() {
+                    @Override
+                    public void onResult(@NonNull WeatherResult weatherResult) {
+                        if (!weatherResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Could not get weather.");
+                            return;
+                        }
+                        Weather weather = weatherResult.getWeather();
+                        setTemperature(weather);
+                        showDialog("It seems that the weather is " +
+                                weatherConditionToString(weather.getConditions()[0]) +
+                                "\nI will suggest you POI based on this condition");
+                    }
+                });
+
+    }
+
+    public void setTemperature(Weather temp){
+        this.weather = temp;
+    }
+
+    private void showDialog(String message) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Information");
+        builder.setMessage(message);
+        builder.setIcon(R.drawable.ic_star);
+
+        String positiveText = "OK";
+        builder.setPositiveButton(positiveText,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // positive button logic
+                    }
+                });
+
+
+        AlertDialog dialog = builder.create();
+        // display dialog
+        dialog.show();
+    }
+
+    public String weatherConditionToString(int id){
+
+        switch (id){
+            case 0:
+                return "unknown";
+            case 1:
+                return "clear";
+            case 2:
+                return "cloudy";
+            case 3:
+                return "foggy";
+            case 4:
+                return "hazy";
+            case 5:
+                return "icy";
+            case 6:
+                return "rainy";
+            case 7:
+                return "snowy";
+            case 8:
+                return "stormy";
+            case 9:
+                return "windy";
+            default:
+                return "eheh";
+
+        }
+    }
+
+    private static boolean isDay(){
+        Calendar now = Calendar.getInstance(TimeZone.getDefault());
+        int nightHourStart = 7, nightHourEnd = 19;
+        return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) && (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
+    }
+
+    private static boolean isNightEarly(){
+        Calendar now = Calendar.getInstance(TimeZone.getDefault());
+        int nightHourStart = 20, nightHourEnd = 0;
+        return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) || (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
+    }
+
+    private static boolean isNightLate(){
+        Calendar now = Calendar.getInstance(TimeZone.getDefault());
+        int nightHourStart = 0, nightHourEnd = 6;
+        return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) && (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
     }
 
 

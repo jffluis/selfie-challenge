@@ -33,6 +33,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDiUsDsLLNyzpQYceHA-ZsrZ2g0VXpNw88"/>
 
+        <meta-data
+            android:name="com.google.android.awareness.API_KEY"
+            android:value="AIzaSyDiUsDsLLNyzpQYceHA-ZsrZ2g0VXpNw88"/>
+
         <provider
             android:name="com.facebook.FacebookContentProvider"
             android:authorities="com.facebook.app.FacebookContentProvider"

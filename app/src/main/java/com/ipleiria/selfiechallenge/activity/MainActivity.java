@@ -76,6 +76,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -517,7 +518,7 @@ public class MainActivity extends AppCompatActivity
         List<FaceAnnotation> faceAnnotations = annotateImageResponse.getFaceAnnotations();
         if (faceAnnotations != null) {
             for (FaceAnnotation annotation : faceAnnotations) {
-                message += String.format(Locale.US, "position: %s anger:%s joy:%s surprise:%s headwear:%s",
+                message += String.format(Locale.US, "position: %s anger:%s joy:%s surprise:%s head§r:%s",
                         annotation.getBoundingPoly(),
                         annotation.getAngerLikelihood(),
                         annotation.getJoyLikelihood(),
@@ -643,46 +644,17 @@ public class MainActivity extends AppCompatActivity
 
 
     public void checkTime() {
-        if(isHourBetween()){
+        if(isNight()){
             System.out.println("entrou??");
             setTheme(R.style.AppThemeDark);
         }
     }
 
-    private boolean isHourBetween(){
-        Calendar now = Calendar.getInstance();
 
-        int dinnerHours = 20;
-        int dinnerMinutes = 0;
-
-        int closingHours = 23;
-        int closingMinutes = 59;
-
-        boolean check1;
-        if(now.get(Calendar.HOUR) < dinnerHours){
-            check1 = false;
-        } else if(now.get(Calendar.HOUR) > dinnerHours){
-            check1 = true;
-        } else {
-            check1 = now.get(Calendar.MINUTE) >= dinnerMinutes;
-        }
-
-        boolean check2;
-        if(now.get(Calendar.HOUR) < closingHours){
-            check2 = true;
-        } else if(now.get(Calendar.HOUR) > closingHours){
-            check2 = false;
-        } else {
-            check2 = now.get(Calendar.MINUTE) < closingMinutes;
-        }
-
-        return check1 && check2;
+    private static boolean isNight(){
+        Calendar now = Calendar.getInstance(TimeZone.getDefault());
+        int nightHourStart = 20, nightHourEnd = 6;
+        return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) || (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        checkTime();
-    }
 }
