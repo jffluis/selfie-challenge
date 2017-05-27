@@ -26,6 +26,7 @@ import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.snapshot.LocationResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
@@ -83,7 +84,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
 
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         final POI poi = poiList.get(position);
         holder.name.setText(poi.getName());
         holder.address.setText(poi.getAddress());
@@ -103,6 +104,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
 
                 if(location.distanceTo(poi.getLocation()) <=  15000){
                     PhotoUtil.startCamera(activity, CAMERA_SMART);
+                    Instance.getInstance().posToDelete = position;
                 }else {
                     showError("You must be less than 100m from the POI to enter challenge!");
                 }

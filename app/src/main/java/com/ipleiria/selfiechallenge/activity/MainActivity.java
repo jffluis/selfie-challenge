@@ -90,9 +90,11 @@ public class MainActivity extends AppCompatActivity
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
+    public static final int GALLERY_SAVE = 11;
     private static final int CAMERA_SMART = 33 ;
     private ProgressDialog progressDialog;
     private boolean isAccepted = false;
+    private Bitmap picture;
 
 
     @Override
@@ -199,8 +201,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             fragment = ChooseChallengeFragment.newInstance(0);
-        } else if (id == R.id.nav_gallery) {
-            fragment = TesteAPICloudVisionFragment.newInstance(0);
         } else if (id == R.id.nav_slideshow) {
             fragment = LeaderboardFragment.newInstance(0);
         }else if (id == R.id.nav_manage) {
@@ -242,9 +242,48 @@ public class MainActivity extends AppCompatActivity
                     ".provider", PhotoUtil.getCameraFile(this));
 
 
-           if(PermissionUtils.requestPermission(this, 12, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-               addPicToGallery(this, photoUri.getPath());
-           }
+            Bitmap bitmap = null;
+            try {
+                bitmap = scaleBitmapDown(
+                        MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri),
+
+                1200);
+
+
+                picture = bitmap;
+                if (PermissionUtils.requestPermission(this, GALLERY_SAVE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "", "");
+                    showDialog("The image was saved on your gallery!", false);
+                    showDialog("Your earned 20 points for participating on a challenge!", false);
+                    Instance.getInstance().getPOIList().remove(Instance.getInstance().posToDelete);
+
+
+                    DatabaseReference pointsRef = Firebase.dbUsers.child(Instance.getInstance().getCurrentUser().getId()+"/points");
+                    pointsRef.runTransaction(new Transaction.Handler() {
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            Integer currentValue = mutableData.getValue(Integer.class);
+                            if (currentValue == null) {
+                                mutableData.setValue(0);
+                            } else {
+                                mutableData.setValue(currentValue + 10);
+                            }
+                            return Transaction.success(mutableData);
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                            System.out.println("Transaction completed");
+                        }
+                    });
+
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 
@@ -289,6 +328,11 @@ public class MainActivity extends AppCompatActivity
                     startGalleryChooser();
                 }
                 break;
+            case  GALLERY_SAVE:
+                if (PermissionUtils.permissionGranted(requestCode, GALLERY_SAVE, grantResults)) {
+                    MediaStore.Images.Media.insertImage(getContentResolver(), picture, "", "");
+                }
+
         }
     }
 

@@ -1,6 +1,5 @@
 package com.ipleiria.selfiechallenge.utils;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,17 +51,13 @@ public class PhotoUtil {
             Uri photoUri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", getCameraFile(activity));
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             activity.startActivityForResult(intent, requestCode);
-
         }
     }
 
-
-
     public static File getCameraFile(Activity activity) {
         File dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return new File(dir, String.valueOf(System.currentTimeMillis()));
+        return new File(dir, FILE_NAME);
     }
     
     private static Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {

@@ -20,6 +20,7 @@ public class Instance {
     private ArrayList<POI> POIList;
     private ArrayList<User> usersList;
     public Challenge challengeToSee;
+    public int posToDelete;
 
     public int selectedPhotoPos;
 
