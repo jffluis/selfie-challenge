@@ -1,9 +1,13 @@
 package com.ipleiria.selfiechallenge.fragments;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -20,6 +24,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -32,6 +37,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.awareness.Awareness;
+import com.google.android.gms.awareness.fence.AwarenessFence;
+import com.google.android.gms.awareness.fence.FenceState;
+import com.google.android.gms.awareness.fence.FenceUpdateRequest;
+import com.google.android.gms.awareness.fence.LocationFence;
 import com.google.android.gms.awareness.snapshot.LocationResult;
 import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
@@ -59,6 +68,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,6 +115,9 @@ public class PlacesAPIFragment extends Fragment implements
     private RecyclerView rvPOI;
     private GoogleApiClient client;
     private Weather weather;
+    private PendingIntent myPendingIntent;
+    private PendingIntent myPendingIntent2;
+    private PendingIntent myPendingIntent3;
 
     public PlacesAPIFragment() {
         // Required empty public constructor
@@ -445,8 +458,6 @@ public class PlacesAPIFragment extends Fragment implements
 
     private void parseResponse(String response) throws JSONException {
 
-        System.out.println(response);
-
         Instance.getInstance().getPOIList().clear();
         JSONObject jObject = new JSONObject(response);
         JSONArray jArrayStock = jObject.getJSONArray("results");
@@ -489,6 +500,7 @@ public class PlacesAPIFragment extends Fragment implements
             public void run() {
                 rvAdapter.notifyDataSetChanged();
                 progressDialog.dismiss();
+                createFences();
             }
         });
 
@@ -603,5 +615,63 @@ public class PlacesAPIFragment extends Fragment implements
         return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) && (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
     }
 
+
+    public void createFences(){
+        checkLocationPermission();
+        for (POI p: Instance.getInstance().getPOIList()){
+            AwarenessFence fence = LocationFence.in(p.getLocation().getLatitude(), p.getLocation().getLongitude(), 500, 10);
+            Instance.getInstance().getFences().add(fence);
+            Intent intent = new Intent(p.getName());
+            PendingIntent myPendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, 0);
+            registerFence(fence, p.getName(), myPendingIntent);
+            MyFenceReceiver myFenceReceiver = new MyFenceReceiver();
+            getActivity().registerReceiver(myFenceReceiver, new IntentFilter(p.getName()));
+            System.out.println("entrei aqui");
+        }
+        System.out.println("OKKK");
+    }
+
+    public void registerFence(AwarenessFence fence, String nameKey, PendingIntent pendingIntent){
+
+        Awareness.FenceApi.updateFences(
+                client,
+                new FenceUpdateRequest.Builder()
+                        .addFence(nameKey, fence, pendingIntent)
+                        .build())
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if (status.isSuccess()) {
+                            Log.i(TAG, "Fence was successfully registered.");
+                        } else {
+                            Log.e(TAG, "Fence could not be registered: " + status);
+                        }
+                    }
+                });
+
+    }
+
+    class MyFenceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            FenceState fenceState = FenceState.extract(intent);
+            for (POI p : Instance.getInstance().getPOIList()){
+                if (TextUtils.equals(fenceState.getFenceKey(), p.getName())) {
+                    switch (fenceState.getCurrentState()) {
+                        case FenceState.TRUE:
+                            Log.i(TAG, "You are in 500m radius of " + p.getName());
+                            showDialog("You are in 500m radius of"+ p.getName());
+                            break;
+                        case FenceState.FALSE:
+                            Log.i(TAG, "You are NOT in 500m radius of" + p.getName());
+                            break;
+                        case FenceState.UNKNOWN:
+                            Log.i(TAG, "unknown state.");
+                            break;
+                    }
+                }
+            }
+        }
+    }
 
 }

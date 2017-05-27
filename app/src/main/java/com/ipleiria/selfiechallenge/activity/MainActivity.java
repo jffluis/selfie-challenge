@@ -1,11 +1,15 @@
 package com.ipleiria.selfiechallenge.activity;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,8 +17,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,8 +32,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.AwarenessFence;
 import com.google.android.gms.awareness.fence.DetectedActivityFence;
+import com.google.android.gms.awareness.fence.FenceState;
+import com.google.android.gms.awareness.fence.FenceUpdateRequest;
+import com.google.android.gms.awareness.fence.HeadphoneFence;
+import com.google.android.gms.awareness.fence.LocationFence;
+import com.google.android.gms.awareness.state.HeadphoneState;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -59,6 +74,7 @@ import com.google.firebase.storage.UploadTask;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.fragments.LeaderboardFragment;
 import com.ipleiria.selfiechallenge.fragments.PlacesAPIFragment;
+import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.utils.Firebase;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 import com.ipleiria.selfiechallenge.utils.PackageManagerUtils;
@@ -90,11 +106,18 @@ public class MainActivity extends AppCompatActivity
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
+    public static final int LOCATION_REQUEST = 3;
     public static final int GALLERY_SAVE = 11;
     private static final int CAMERA_SMART = 33 ;
+    private static final String FENCE_RECEIVER_ACTION = "999";
     private ProgressDialog progressDialog;
     private boolean isAccepted = false;
     private Bitmap picture;
+    private GoogleApiClient client;
+    private PendingIntent myPendingIntent;
+    private PendingIntent myPendingIntent2;
+    private PendingIntent myPendingIntent3;
+
 
 
     @Override
@@ -121,12 +144,38 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        Intent intent = new Intent(FENCE_RECEIVER_ACTION);
+        myPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        MyFenceReceiver myFenceReceiver = new MyFenceReceiver();
+        registerReceiver(myFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
 
-        // Create the primitive fences.
-        AwarenessFence walkingFence = DetectedActivityFence.during(DetectedActivityFence.WALKING);
+        client = new GoogleApiClient.Builder(this)
+                .addApi(Awareness.API)
+                .build();
+        client.connect();
 
-        System.out.println("walkingFence");
-        System.out.println(walkingFence);
+
+// Create a fence.
+        checkLocationPermission();
+        AwarenessFence locationFence = LocationFence.in(39.5485, -8.962, 100, 10);
+
+// Register the fence to receive callbacks.
+// The fence key uniquely identifies the fence.
+        Awareness.FenceApi.updateFences(
+                client,
+                new FenceUpdateRequest.Builder()
+                        .addFence("fenceKey", locationFence, myPendingIntent)
+                        .build())
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if (status.isSuccess()) {
+                            Log.i(TAG, "Fence was successfully registered.");
+                        } else {
+                            Log.e(TAG, "Fence could not be registered: " + status);
+                        }
+                    }
+                });
 
 
         /*new AsyncTask<Void,String,Bitmap>(){
@@ -726,5 +775,79 @@ public class MainActivity extends AppCompatActivity
         int nightHourStart = 20, nightHourEnd = 6;
         return (now.get(Calendar.HOUR_OF_DAY) >= nightHourStart) || (now.get(Calendar.HOUR_OF_DAY) < nightHourEnd);
     }
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        LOCATION_REQUEST);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        LOCATION_REQUEST);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    public void registerFence(AwarenessFence fence, String nameKey, PendingIntent pendingIntent){
+
+        Awareness.FenceApi.updateFences(
+                client,
+                new FenceUpdateRequest.Builder()
+                        .addFence(nameKey, fence, pendingIntent)
+                        .build())
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if (status.isSuccess()) {
+                            Log.i(TAG, "Fence was successfully registered.");
+                        } else {
+                            Log.e(TAG, "Fence could not be registered: " + status);
+                        }
+                    }
+                });
+
+    }
+
+    class MyFenceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            FenceState fenceState = FenceState.extract(intent);
+
+            if (TextUtils.equals(fenceState.getFenceKey(), "fenceKey")) {
+                switch (fenceState.getCurrentState()) {
+                    case FenceState.TRUE:
+                        Log.i(TAG, "You are in 100m radius");
+                        break;
+                    case FenceState.FALSE:
+                        Log.i(TAG, "You are NOT in 100m radius");
+                        break;
+                    case FenceState.UNKNOWN:
+                        Log.i(TAG, "unknown state.");
+                        break;
+                }
+            }
+        }
+    }
+
 
 }

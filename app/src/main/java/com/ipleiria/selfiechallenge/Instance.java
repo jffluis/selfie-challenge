@@ -1,5 +1,6 @@
 package com.ipleiria.selfiechallenge;
 
+import com.google.android.gms.awareness.fence.AwarenessFence;
 import com.ipleiria.selfiechallenge.model.Challenge;
 import com.ipleiria.selfiechallenge.model.POI;
 import com.ipleiria.selfiechallenge.model.User;
@@ -21,6 +22,7 @@ public class Instance {
     private ArrayList<User> usersList;
     public Challenge challengeToSee;
     public int posToDelete;
+    private ArrayList<AwarenessFence> fences;
 
     public int selectedPhotoPos;
 
@@ -32,6 +34,7 @@ public class Instance {
         challengesList = new ArrayList<>();
         POIList = new ArrayList<>();
         usersList = new ArrayList<>();
+        fences = new ArrayList<>();
     }
 
     private String fullName;
@@ -92,5 +95,13 @@ public class Instance {
 
     public void setUsersList(ArrayList<User> usersList) {
         this.usersList = usersList;
+    }
+
+    public ArrayList<AwarenessFence> getFences() {
+        return fences;
+    }
+
+    public void setFences(ArrayList<AwarenessFence> fences) {
+        this.fences = fences;
     }
 }
