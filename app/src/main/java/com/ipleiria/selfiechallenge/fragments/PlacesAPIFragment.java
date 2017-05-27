@@ -664,6 +664,9 @@ public class PlacesAPIFragment extends Fragment implements
                             break;
                         case FenceState.FALSE:
                             Log.i(TAG, "You are NOT in 500m radius of" + p.getName());
+                            showDialog("You are NOT in 500m radius of" + p.getName()
+                            );
+
                             break;
                         case FenceState.UNKNOWN:
                             Log.i(TAG, "unknown state.");
