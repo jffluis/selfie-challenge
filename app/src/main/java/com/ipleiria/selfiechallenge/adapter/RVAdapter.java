@@ -34,6 +34,8 @@ import java.util.List;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
 
+    public static final int CAMERA_IMAGE_REQUEST = 3;
+
     private List<Challenge> challengeList;
     private final Activity activity;
     private boolean checkAlreadyEntered = false;
@@ -100,7 +102,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ViewHolder> {
             @Override
             public void onClick(View view) {
                 Instance.getInstance().setCurrentChallenge(challenge);
-                PhotoUtil.startCamera(activity);
+                PhotoUtil.startCamera(activity, CAMERA_IMAGE_REQUEST);
 
             }
         });

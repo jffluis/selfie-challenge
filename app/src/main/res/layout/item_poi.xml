@@ -3,6 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="2dp">
@@ -20,51 +21,79 @@
         app:cardUseCompatPadding="true">
 
 
-        <RelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="170dp"
             android:padding="16dp">
 
             <ImageView
                 android:id="@+id/img_poi"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="6dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/com_facebook_profile_picture_blank_square" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.538"
+                app:srcCompat="@drawable/com_facebook_profile_picture_blank_square"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent" />
 
             <TextView
                 android:id="@+id/address_poi"
-                android:layout_width="150dp"
-                android:layout_height="20dp"
+                android:layout_width="122dp"
+                android:layout_height="62dp"
+                android:layout_alignBaseline="@+id/btn_enter"
+                android:layout_alignBottom="@+id/btn_enter"
                 android:layout_alignStart="@+id/name_poi"
-                android:layout_below="@+id/name_poi"
-                android:layout_marginTop="13dp"
+                android:layout_marginBottom="27dp"
+                android:layout_marginLeft="16dp"
                 android:maxHeight="20dp"
-                android:text="address" />
+                android:text="address"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/img_poi"
+                app:layout_constraintRight_toLeftOf="@+id/btn_enter"
+                android:layout_marginRight="0dp"
+                app:layout_constraintHorizontal_bias="0.0" />
 
             <TextView
                 android:id="@+id/name_poi"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="28dp"
+                android:layout_width="176dp"
+                android:layout_height="19dp"
+                android:layout_alignTop="@+id/btn_enter"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_toEndOf="@+id/img_poi"
                 android:text="City"
                 android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintLeft_toRightOf="@+id/img_poi"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="40dp"
+            <Button
+                android:id="@+id/btn_enter"
+                style="@android:style/Widget.Material.Button.Colored"
+                android:layout_width="69dp"
                 android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                app:srcCompat="@drawable/btn_check_buttonless_on" />
+                android:layout_marginEnd="6dp"
+                android:layout_toEndOf="@+id/address_poi"
+                android:text="Enter"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintVertical_bias="0.526"
+                android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent" />
 
-        </RelativeLayout>
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
 

@@ -1,7 +1,10 @@
 package com.ipleiria.selfiechallenge.activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
@@ -66,13 +69,10 @@ import com.ipleiria.selfiechallenge.fragments.StartFragment;
 import com.ipleiria.selfiechallenge.fragments.TesteAPICloudVisionFragment;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
+    private static final int CAMERA_SMART = 33 ;
     private ProgressDialog progressDialog;
     private boolean isAccepted = false;
 
@@ -235,27 +236,41 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() +
                     ".provider", PhotoUtil.getCameraFile(this));
-
-            //se passar no cloud vision api adiciona ao firebase e à aplicação
-
-
-            try {
-                Bitmap bitmap =
-                        scaleBitmapDown(
-                                MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri),
-                                1200);
-
-                //Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
-                callCloudVision(bitmap);
-
-                //System.out.println(Instance.getInstance().getCurrentChallenge().getName());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            uploadToCloudVision(photoUri);
+        }else if(requestCode == CAMERA_SMART && resultCode == RESULT_OK){
+            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() +
+                    ".provider", PhotoUtil.getCameraFile(this));
 
 
+           if(PermissionUtils.requestPermission(this, 12, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+               addPicToGallery(this, photoUri.getPath());
+           }
+        }
+    }
 
+    public static void addPicToGallery(Context context, String photoPath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(photoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
+        Toast.makeText(context, "addded foto to galelry",Toast.LENGTH_SHORT).show();
+    }
+
+    private void uploadToCloudVision(Uri photoUri) {
+        try {
+            Bitmap bitmap =
+                    scaleBitmapDown(
+                            MediaStore.Images.Media.getBitmap(getContentResolver(), photoUri),
+                            1200);
+
+            //Instance.getInstance().getCurrentChallenge().addPhoto(bitmap);
+            callCloudVision(bitmap);
+
+            //System.out.println(Instance.getInstance().getCurrentChallenge().getName());
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -524,6 +539,11 @@ public class MainActivity extends AppCompatActivity
                         annotation.getJoyLikelihood(),
                         annotation.getSurpriseLikelihood(),
                         annotation.getHeadwearLikelihood());
+
+                        entireResponse.add(annotation.getAngerLikelihood());
+                        entireResponse.add(annotation.getJoyLikelihood());
+                        entireResponse.add(annotation.getSurpriseLikelihood());
+                        entireResponse.add(annotation.getHeadwearLikelihood());
                 message += "\n";
             }
         } else {
@@ -551,8 +571,14 @@ public class MainActivity extends AppCompatActivity
                     progressDialog.dismiss();
                     return true;
                 }
+                if(res.contains("VERY_LIKELY")){
+                    progressDialog.dismiss();
+                    return true;
+                }
             }
         }
+
+        System.out.println("ENTIRE RESPONSE: " + entireResponse);
 
         progressDialog.dismiss();
         return false;

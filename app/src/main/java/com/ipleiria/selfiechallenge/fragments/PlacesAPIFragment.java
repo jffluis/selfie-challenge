@@ -329,22 +329,23 @@ public class PlacesAPIFragment extends Fragment implements
         if(isNightEarly()){
             url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
                     "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=restaurant&key=" + Constants.API_KEY;
-            showDialog("We recommended you some Restaurants!");
+            showDialog("Since it is dinner time, we recommended you some Restaurants!");
         }else if (isNightLate()){
             url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
                     "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=bar&key=" + Constants.API_KEY;
-            showDialog("We recommended you some Bars!");
+            showDialog("Since is party time, we recommended you some Bars!");
 
         }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_CLEAR){
             url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
                     "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=amusement_park&key=" + Constants.API_KEY;
             showDialog("We recommended you some entertainment places");
 
-        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_RAINY || weather.getConditions()[0] == Weather.CONDITION_STORMY){
+        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_RAINY ||
+                weather.getConditions()[0] == Weather.CONDITION_STORMY ||
+                weather.getConditions()[0] == Weather.CONDITION_CLOUDY){
             url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
                     "json?location="+location.getLatitude()+","+location.getLongitude()+"&type=shopping_mall&key=" + Constants.API_KEY;
             showDialog("We recommended you some shopping  places");
-
         }
 
         final String final_urlString = url_string;
@@ -383,8 +384,32 @@ public class PlacesAPIFragment extends Fragment implements
 
     private void getPlaces(String cityName) throws MalformedURLException {
         String cityParsed = cityName.replace(" ", "+");
-        final String url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
-                "json?query="+ cityParsed + "+point+of+interest" + "&key=" + Constants.API_KEY;
+        String url_string = "";
+
+        if(isNightEarly()){
+            url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?query="+ cityParsed + "+point+of+interest" + "&type=restaurant&key=" + Constants.API_KEY;
+            showDialog("Since it is dinner time, we recommended you some Restaurants!");
+        }else if (isNightLate()){
+            url_string= "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?query="+ cityParsed + "+point+of+interest" + "&type=bar&key=" + Constants.API_KEY;
+            showDialog("Since is party time, we recommended you some Bars!");
+
+        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_CLEAR){
+            url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?query="+ cityParsed + "+point+of+interest" + "&type=amusement_park&key=" + Constants.API_KEY;
+            showDialog("We recommended you some entertainment places");
+
+        }else if (isDay() && weather.getConditions()[0] == Weather.CONDITION_RAINY ||
+                weather.getConditions()[0] == Weather.CONDITION_STORMY ||
+                weather.getConditions()[0] == Weather.CONDITION_CLOUDY){
+
+            url_string = "https://maps.googleapis.com/maps/api/place/textsearch/" +
+                    "json?query="+ cityParsed + "+point+of+interest" + "&type=shopping_mall&key=" + Constants.API_KEY;
+            showDialog("We recommended you some shopping  places");
+        }
+
+        final String final_urlString = url_string;
 
         new Thread(new Runnable() {
             @Override
@@ -393,7 +418,7 @@ public class PlacesAPIFragment extends Fragment implements
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try {
-                    url = new URL(url_string);
+                    url = new URL(final_urlString);
                     urlConnection = (HttpURLConnection) url.openConnection();
                     InputStream in = urlConnection.getInputStream();
                     InputStreamReader isw = new InputStreamReader(in);
@@ -429,15 +454,20 @@ public class PlacesAPIFragment extends Fragment implements
         JSONArray jArray = shuffleJsonArray(jArrayStock);
 
 
-        for (int i=0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             try {
                 JSONObject oneObject = jArray.getJSONObject(i);
                 String name = oneObject.getString("name");
                 String address = oneObject.getString("formatted_address");
-                JSONArray jArrayPhoto = oneObject.getJSONArray("photos");
+                JSONArray jArrayPhoto = oneObject.optJSONArray("photos");
+                JSONObject geometry =  oneObject.getJSONObject("geometry");
+                JSONObject loc = geometry.getJSONObject("location");
+                Location location = new Location("POI");
+                location.setLatitude(loc.getDouble("lat"));
+                location.setLongitude(loc.getDouble("lng"));
                 String photoURL;
-                if(jArrayPhoto.length() > 0){
+                if(jArrayPhoto != null){
                     String photoReference = jArrayPhoto.getJSONObject(0).getString("photo_reference");
                     photoURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+
                             photoReference +"&key="+Constants.API_KEY;
@@ -445,7 +475,7 @@ public class PlacesAPIFragment extends Fragment implements
                     photoURL = "https://image.freepik.com/free-icon/placeholder-on-map-paper-in-perspective_318-61698.jpg";
                 }
 
-                Instance.getInstance().addPOI(new POI(name, address, photoURL));
+                Instance.getInstance().addPOI(new POI(name, address, photoURL, location));
 
             } catch (JSONException e) {
                 e.printStackTrace();
