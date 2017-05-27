@@ -22,6 +22,11 @@ import com.ipleiria.selfiechallenge.adapter.RVUserAdapter;
 import com.ipleiria.selfiechallenge.model.User;
 import com.ipleiria.selfiechallenge.utils.Firebase;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -138,7 +143,16 @@ public class LeaderboardFragment extends Fragment {
                 editor.apply();
             }
         }
+
+        Collections.sort(Instance.getInstance().getUsersList(), new Comparator<User>() {
+            public int compare(User u1, User u2) {
+            return u2.getPoints() - u1.getPoints();
+            }
+        });
+
         rvAdapter.notifyDataSetChanged();
         progressDialog.dismiss();
     }
+
+
 }
