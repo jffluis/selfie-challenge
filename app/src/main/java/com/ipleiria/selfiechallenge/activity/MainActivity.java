@@ -118,7 +118,19 @@ public class MainActivity extends AppCompatActivity
     private PendingIntent myPendingIntent2;
     private PendingIntent myPendingIntent3;
 
+    private MyFenceReceiver myFenceReceiver = new MyFenceReceiver();
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myFenceReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(myFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +158,6 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = new Intent(FENCE_RECEIVER_ACTION);
         myPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        MyFenceReceiver myFenceReceiver = new MyFenceReceiver();
         registerReceiver(myFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
 
         client = new GoogleApiClient.Builder(this)
