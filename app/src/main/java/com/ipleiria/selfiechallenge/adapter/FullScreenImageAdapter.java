@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -54,7 +55,9 @@ public class FullScreenImageAdapter extends PagerAdapter {
     private LayoutInflater inflater;
     private ProgressBar progressBar;
     private String photoURL;
-    LikeButton likeButton;
+    private LikeButton likeButton;
+    private TextView likeCounter;
+    private int likes;
 
     // constructor
     public FullScreenImageAdapter(Activity activity,
@@ -94,14 +97,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
         imgDisplay = (ImageView) viewLayout.findViewById(R.id.imgDisplay);
         likeButton = (LikeButton) viewLayout.findViewById(R.id.like_button);
-
-
+        likeCounter = (TextView) viewLayout.findViewById(R.id.likes_counter);
+        likeCounter.setText("0");
 
         likeButton.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
                 System.out.println("liked");
-
 
                 try {
                     postToggleLike();
@@ -114,6 +116,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
             @Override
             public void unLiked(LikeButton likeButton) {
                 System.out.println("disliked");
+
                 try {
                     postToggleLike();
                 } catch (IOException e) {
@@ -123,9 +126,6 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
             }
         });
-
-
-
 
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
         final ProgressBar progressBar = (ProgressBar) viewLayout.findViewById(R.id.progress);
@@ -176,6 +176,17 @@ public class FullScreenImageAdapter extends PagerAdapter {
             @Override
             public void onResponse(String response) {
                 Log.i("LOG_VOLLEY", response);
+
+                JSONObject json = null;
+                try {
+                    json = new JSONObject(response);
+
+                    int likes = json.getInt("likes");
+                    boolean isLiked = json.getBoolean("hasLike");
+                    toggleCallback(likes);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -195,17 +206,6 @@ public class FullScreenImageAdapter extends PagerAdapter {
                 headers.put("photo_id", photoURL);
                 return headers;
             }
-
-            @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                String responseString = "";
-                if (response != null) {
-
-                    responseString = String.valueOf(response.statusCode);
-
-                }
-                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-            }
         };
 
         requestQueue.add(stringRequest);
@@ -213,7 +213,11 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
     private void likeCallback(int likes, boolean isLiked){
         likeButton.setLiked(isLiked);
+        likeCounter.setText(String.valueOf(likes));
+    }
 
+    private void toggleCallback(int likes){
+        likeCounter.setText(String.valueOf(likes));
     }
 
     private void isLiked() throws JSONException {
