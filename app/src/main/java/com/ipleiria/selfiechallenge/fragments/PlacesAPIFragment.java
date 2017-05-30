@@ -111,7 +111,7 @@ public class PlacesAPIFragment extends Fragment implements
     private Button btnGenerate;
     private boolean searchByLocation = false;
     private String placeToSearch = "";
-    private RVPOIAdapter rvAdapter;
+    public RVPOIAdapter rvAdapter;
     private RecyclerView rvPOI;
     private GoogleApiClient client;
     private Weather weather;
@@ -152,7 +152,6 @@ public class PlacesAPIFragment extends Fragment implements
         client.connect();
 
 
-
         if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
             if (parent != null)
@@ -166,7 +165,6 @@ public class PlacesAPIFragment extends Fragment implements
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setTitle("Smart Challenge");
-        getLocation();
 
         textViewgenerate = (TextView) view.findViewById(R.id.textView3);
         switchLocation = (Switch) view.findViewById(R.id.switch2);
@@ -243,6 +241,8 @@ public class PlacesAPIFragment extends Fragment implements
             }
         });
 
+        getLocation();
+
         getWeather();
 
         return view;
@@ -255,12 +255,9 @@ public class PlacesAPIFragment extends Fragment implements
                 .setResultCallback(new ResultCallback<LocationResult>() {
                     @Override
                     public void onResult(@NonNull LocationResult locationResult) {
-                        if (!locationResult.getStatus().isSuccess()) {
-                            Log.e(TAG, "Could not get location.");
-                            return;
+                        if (locationResult.getStatus().isSuccess()) {
+                            location = locationResult.getLocation();
                         }
-                        location = locationResult.getLocation();
-                        Log.i(TAG, "Lat: " + location.getLatitude() + ", Lng: " + location.getLongitude());
                     }
                 });
     }
@@ -619,7 +616,7 @@ public class PlacesAPIFragment extends Fragment implements
     public void createFences(){
         checkLocationPermission();
         for (POI p: Instance.getInstance().getPOIList()){
-            AwarenessFence fence = LocationFence.in(p.getLocation().getLatitude(), p.getLocation().getLongitude(), 500, 10);
+            AwarenessFence fence = LocationFence.in(p.getLocation().getLatitude(), p.getLocation().getLongitude(), Constants.DISTANCE_TO_POI, 1);
             Instance.getInstance().getFences().add(fence);
             Intent intent = new Intent(p.getName());
             PendingIntent myPendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, 0);
@@ -657,16 +654,16 @@ public class PlacesAPIFragment extends Fragment implements
             FenceState fenceState = FenceState.extract(intent);
             for (POI p : Instance.getInstance().getPOIList()){
                 if (TextUtils.equals(fenceState.getFenceKey(), p.getName())) {
+                    System.out.println("ENTREI NA CLASS DA FENCE");
+
                     switch (fenceState.getCurrentState()) {
                         case FenceState.TRUE:
-                            Log.i(TAG, "You are in 500m radius of " + p.getName());
-                            showDialog("You are in 500m radius of"+ p.getName());
+                            Log.i(TAG, "You are in "+Constants.DISTANCE_TO_POI+ "m radius of " + p.getName());
+                            showDialog("You are in "+Constants.DISTANCE_TO_POI +"m radius of "+ p.getName());
                             break;
                         case FenceState.FALSE:
-                            Log.i(TAG, "You are NOT in 500m radius of" + p.getName());
-                            showDialog("You are NOT in 500m radius of" + p.getName()
-                            );
-
+                            Log.i(TAG, "You are NOT in " +Constants.DISTANCE_TO_POI+ "m radius of " + p.getName());
+                            showDialog("You are NOT in " + Constants.DISTANCE_TO_POI + "m radius of " + p.getName());
                             break;
                         case FenceState.UNKNOWN:
                             Log.i(TAG, "unknown state.");

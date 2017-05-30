@@ -16,6 +16,8 @@ import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.adapter.FullScreenImageAdapter;
 import com.like.OnLikeListener;
 
+import org.json.JSONException;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -71,6 +73,29 @@ public class PhotoViewerFragment extends Fragment {
         viewPager.setAdapter(adapter);
         // displaying selected image first
         viewPager.setCurrentItem(Instance.getInstance().selectedPhotoPos);
+
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                try {
+                    adapter.changePage(position);
+                } catch (JSONException e) {
+
+
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         return view;
     }
 

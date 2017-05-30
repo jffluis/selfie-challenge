@@ -58,6 +58,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
     private LikeButton likeButton;
     private TextView likeCounter;
     private int likes;
+    private int currentPage = 0;
 
     // constructor
     public FullScreenImageAdapter(Activity activity,
@@ -80,12 +81,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, final int position) {
         photoURL = challenge.getPhotos().get(position);
 
+
+        System.out.println("ehehe : " + ((ViewPager) container).getCurrentItem());
         try {
             isLiked();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
         ImageView imgDisplay;
         Button btnClose;
@@ -99,6 +101,8 @@ public class FullScreenImageAdapter extends PagerAdapter {
         likeButton = (LikeButton) viewLayout.findViewById(R.id.like_button);
         likeCounter = (TextView) viewLayout.findViewById(R.id.likes_counter);
         likeCounter.setText("0");
+
+;
 
         likeButton.setOnLikeListener(new OnLikeListener() {
             @Override
@@ -276,5 +280,11 @@ public class FullScreenImageAdapter extends PagerAdapter {
             }
         });
         thread.start();
+    }
+
+    public void changePage(int currentItem) throws JSONException {
+        photoURL = challenge.getPhotos().get(currentItem);
+        currentPage = currentItem;
+        isLiked();
     }
 }

@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.ipleiria.selfiechallenge.Instance;
 import com.ipleiria.selfiechallenge.R;
 import com.ipleiria.selfiechallenge.model.POI;
+import com.ipleiria.selfiechallenge.utils.Constants;
 import com.ipleiria.selfiechallenge.utils.PhotoUtil;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
     private final Activity activity;
     public static final int CAMERA_SMART = 33;
     private GoogleApiClient client;
-
+    private RVPOIAdapter _this;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -64,6 +65,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
     public RVPOIAdapter(List<POI> poiList, Activity activity) {
         this.activity = activity;
         this.poiList = poiList;
+        _this = this;
     }
 
     @Override
@@ -81,6 +83,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
 
         return new ViewHolder(itemView);
     }
+
 
 
     @Override
@@ -102,11 +105,12 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
 
-                if(location.distanceTo(poi.getLocation()) <=  15000){
+                if(location.distanceTo(poi.getLocation()) <= Constants.DISTANCE_TO_POI){
                     PhotoUtil.startCamera(activity, CAMERA_SMART);
                     Instance.getInstance().posToDelete = position;
+                    System.out.println("position to delete: " + position);
                 }else {
-                    showError("You must be less than 100m from the POI to enter challenge!");
+                    showError("You must be less than "+Constants.DISTANCE_TO_POI+"m from the POI to enter challenge!");
                 }
             }
         });
@@ -168,7 +172,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Information");
         builder.setMessage(message);
-        builder.setIcon(R.drawable.ic_star);
+        builder.setIcon(R.drawable.ic_error);
 
         String positiveText = "OK";
         builder.setPositiveButton(positiveText,

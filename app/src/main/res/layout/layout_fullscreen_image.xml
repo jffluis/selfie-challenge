@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="100dp"/>
+        android:layout_alignParentBottom="true" />
 
     <Button
         android:id="@+id/btnClose"
@@ -45,8 +45,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="TextView" />
+        android:layout_marginBottom="28dp"
+        android:layout_marginEnd="12dp"
+        android:layout_toStartOf="@+id/like_button"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <ProgressBar
         android:id="@+id/progress"

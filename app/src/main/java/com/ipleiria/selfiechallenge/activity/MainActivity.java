@@ -120,17 +120,6 @@ public class MainActivity extends AppCompatActivity
 
     private MyFenceReceiver myFenceReceiver = new MyFenceReceiver();
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(myFenceReceiver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerReceiver(myFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,27 +155,6 @@ public class MainActivity extends AppCompatActivity
         client.connect();
 
 
-// Create a fence.
-        checkLocationPermission();
-        AwarenessFence locationFence = LocationFence.in(39.5485, -8.962, 100, 10);
-
-// Register the fence to receive callbacks.
-// The fence key uniquely identifies the fence.
-        Awareness.FenceApi.updateFences(
-                client,
-                new FenceUpdateRequest.Builder()
-                        .addFence("fenceKey", locationFence, myPendingIntent)
-                        .build())
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        if (status.isSuccess()) {
-                            Log.i(TAG, "Fence was successfully registered.");
-                        } else {
-                            Log.e(TAG, "Fence could not be registered: " + status);
-                        }
-                    }
-                });
 
 
         /*new AsyncTask<Void,String,Bitmap>(){
@@ -316,6 +284,7 @@ public class MainActivity extends AppCompatActivity
                     showDialog("The image was saved on your gallery!", false);
                     showDialog("Your earned 20 points for participating on a challenge!", false);
                     Instance.getInstance().getPOIList().remove(Instance.getInstance().posToDelete);
+
 
 
                     DatabaseReference pointsRef = Firebase.dbUsers.child(Instance.getInstance().getCurrentUser().getId()+"/points");
@@ -477,22 +446,22 @@ public class MainActivity extends AppCompatActivity
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature labelDetection = new Feature();
                             labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(5);
+                            labelDetection.setMaxResults(20);
                             add(labelDetection);
 
                             Feature webDetection = new Feature();
                             webDetection.setType("WEB_DETECTION");
-                            webDetection.setMaxResults(5);
+                            webDetection.setMaxResults(20);
                             add(webDetection);
 
                             Feature logoDetection = new Feature();
                             logoDetection.setType("LOGO_DETECTION");
-                            logoDetection.setMaxResults(5);
+                            logoDetection.setMaxResults(20);
                             add(logoDetection);
 
                             Feature faceDetection = new Feature();
                             faceDetection.setType("FACE_DETECTION");
-                            faceDetection.setMaxResults(5);
+                            faceDetection.setMaxResults(20);
                             add(faceDetection);
                         }});
 
