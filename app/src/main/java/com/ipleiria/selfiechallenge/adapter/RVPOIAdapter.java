@@ -105,12 +105,16 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
 
-                if(location.distanceTo(poi.getLocation()) <= Constants.DISTANCE_TO_POI){
-                    PhotoUtil.startCamera(activity, CAMERA_SMART);
-                    Instance.getInstance().posToDelete = position;
-                    System.out.println("position to delete: " + position);
+                if(location != null) {
+                    if (location.distanceTo(poi.getLocation()) <= Constants.DISTANCE_TO_POI) {
+                        PhotoUtil.startCamera(activity, CAMERA_SMART);
+                        Instance.getInstance().posToDelete = position;
+                        System.out.println("position to delete: " + position);
+                    } else {
+                        showError("You must be less than " + Constants.DISTANCE_TO_POI + "m from the POI to enter challenge!");
+                    }
                 }else {
-                    showError("You must be less than "+Constants.DISTANCE_TO_POI+"m from the POI to enter challenge!");
+                    showError("Couldn't get your location");
                 }
             }
         });

@@ -87,8 +87,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Use the {@link PlacesAPIFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PlacesAPIFragment extends Fragment implements
-        android.location.LocationListener {
+public class PlacesAPIFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -187,7 +186,11 @@ public class PlacesAPIFragment extends Fragment implements
 
                 if(searchByLocation){
                     try {
-                        getPlaces(location);
+                        if(location != null){
+                            getPlaces(location);
+                        }else {
+                            showDialog("Could not get location!");
+                        }
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
@@ -251,12 +254,17 @@ public class PlacesAPIFragment extends Fragment implements
 
     private void getLocation() {
         checkLocationPermission();
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Getting Location");
+        progressDialog.show();
         Awareness.SnapshotApi.getLocation(client)
                 .setResultCallback(new ResultCallback<LocationResult>() {
                     @Override
                     public void onResult(@NonNull LocationResult locationResult) {
                         if (locationResult.getStatus().isSuccess()) {
                             location = locationResult.getLocation();
+                            System.out.println("ENTREI AQUI??");
+                            progressDialog.dismiss();
                         }
                     }
                 });
@@ -267,31 +275,6 @@ public class PlacesAPIFragment extends Fragment implements
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        float lat = (float) (location.getLatitude());
-        float lng = (float) (location.getLongitude());
-        String locLat = String.valueOf(lat)+","+String.valueOf(lng);
-
-        Log.i(TAG, "ON LOCATION CHANGED: " + locLat);
-
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
     }
 
     public interface OnFragmentInteractionListener {
