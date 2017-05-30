@@ -133,7 +133,7 @@ public class RVPOIAdapter extends RecyclerView.Adapter<RVPOIAdapter.ViewHolder> 
                     @Override
                     public void onResult(@NonNull LocationResult locationResult) {
                         if (!locationResult.getStatus().isSuccess()) {
-                            return;
+                            showError("Couldn't get your location");
                         }
                         location = locationResult.getLocation();
                     }
